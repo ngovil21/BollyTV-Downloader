@@ -13,7 +13,7 @@ URL_HOME = "http://www.bollystop.com/"
 
 BASE_PATH = 'C:\\Users\\Nikhil\\Videos'
 
-MAX_EPISODES = 5
+MAX_EPISODES = 1
 
 Downloads = {
     'Zee TV': ('Jodhaa Akbar',),
@@ -94,7 +94,7 @@ def Download(channel, shows):
                             print(link)
                             try:
                                 if len(links) > 1:
-                                    episode_title = title + " Part " + str(i+1)
+                                    episode_title = title + " Part " + "%02d" % int(i+1)
                                 else:
                                     episode_title = title
                                 #retrieve file, store as temporary .part file
