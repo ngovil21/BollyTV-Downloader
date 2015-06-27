@@ -9,20 +9,18 @@ from lxml import etree
 import re
 import urllib.request, urllib.parse
 
+import Main
+
 URL_HOME = "http://www.bollystop.com/"
 
-BASE_PATH = 'C:\\Users\\Nikhil\\Videos'
 
-MAX_EPISODES = 1
+def Settings(set):
+    if set == 'MaxEpisodes':
+        return Main.MAX_EPISODES
+    if set == 'BasePath':
+        return Main.BASE_PATH
 
-Downloads = {
-    'Zee TV': ('Jodhaa Akbar',),
-    'Colors': ('Comedy Nights With Kapil','Chakravartin Ashoka Samrat', 'Indias Got Talent')
-}
-
-
-
-def Download(channel, shows):
+def Download(channel, shows, hd=False):
     #get channel
     source = html.parse(URL_HOME + "hindi-serial.html")
     channel_search = channel.replace('Zee TV', 'Jii-TV').replace(' ','-')
@@ -46,8 +44,8 @@ def Download(channel, shows):
                     continue
                 #get a maximum number of episodes
                 max = len(episodes_tree)
-                if max > MAX_EPISODES:
-                    max = MAX_EPISODES
+                if max > Settings('MaxEpisodes'):
+                    max = Settings('MaxEpisodes')
                 for branch in range(0, max):
                     #get episode
                     link = episodes_tree[branch].xpath("./@href")
@@ -66,7 +64,7 @@ def Download(channel, shows):
                         links = item.xpath("./following-sibling::div[1]/div//a")
                         download_fail = False
 
-                        path = os.path.join(BASE_PATH, show)
+                        path = os.path.join(Settings('BasePath'), show)
                         if not os.path.isdir(path):
                             os.makedirs(path)
                         title = show + " - " + date
@@ -129,6 +127,20 @@ def GetURLSource(url, referer, date=''):
     string = html.tostring(element).decode('utf-8')
     #print(string)
     host = ''
+    if element.xpath("//iframe[contains(@src,'dailymotion')]"):
+        link = element.xpath("//iframe[contains(@src,'dailymotion')]/@src")
+        site = readURL(link)
+        if not site:
+            return None, None
+        site = replaceSpecialCharacters(site)
+        patterns = ['"stream_h264_hd1080_url":"(.+?)"', '"stream_h264_hd_url":"(.+?)"', '"stream_h264_hq_url":"(.+?)"', '"stream_h264_url":"(.+?)"', '"stream_h264_ld_url":"(.+?)"']
+        for pat in patterns:
+            match = re.compile(pat, re.IGNORECASE).findall(site)
+            if match:
+                url = urllib.request.unquote(match[0])
+                host = 'dailymotion'
+                return url, host
+        return None, None
     if string.find('playwire') != -1:
         # Log("pID: " + str(len(element.xpath("//script/@data-publisher-id"))) + " vID: " + str(len(element.xpath("//script/@data-video-id"))))
         if len(element.xpath("//script/@data-publisher-id")) != 0 and len(element.xpath("//script/@data-video-id")) != 0:
@@ -189,6 +201,11 @@ def GetURLSource(url, referer, date=''):
     # return url, thumb
     return url, host
 
+
+def replaceSpecialCharacters(sString):
+    return sString.replace('\\/', '/').replace('&amp;', '&').replace('\xc9', 'E').replace('&#8211;', '-').replace('&#038;', '&').replace('&rsquo;', '\'').replace('\r', '').replace('\n', '').replace('\t', '').replace('&#039;', "'")
+
+
 def readURL(url, referer=None, headers={}, raw=False):
     try:
         request = urllib.request.Request(url=url, headers=headers)
@@ -218,8 +235,3 @@ def getDate(text):
         year = str(datetime.date.today().year)
         text = month + "-" + day + "-" + year
     return text
-
-
-for channel in Downloads:
-    Download(channel, Downloads[channel])
-
