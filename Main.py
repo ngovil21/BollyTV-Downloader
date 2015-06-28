@@ -30,7 +30,7 @@ def dumpSettings(output):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dump", "-dump", help="Dump the settings to a configuration file and exit", nargs='?',
-                    const=os.path.join(sys.path[0], "Settings.conf"), default=None)
+                    const=os.path.join(sys.path[0], "Settings.cfg"), default=None)
 parser.add_argument("--config", "-config", "--load", "-load",
                     help="Load settings from a configuration file and run with settings")
 parser.add_argument("--update_config", "-update_config", action="store_true",
