@@ -9,16 +9,12 @@ from lxml import etree
 import re
 import urllib.request, urllib.parse
 
-import Main
-
 URL_HOME = "http://www.bollystop.com/"
 
 
-def Settings(set):
-    if set == 'MaxEpisodes':
-        return Main.MAX_EPISODES
-    if set == 'BasePath':
-        return Main.BASE_PATH
+BASE_PATH = '~/Downloads/BollyTV'
+MAX_EPISODES = 0
+
 
 def Download(channel, shows, hd=False):
     #get channel
@@ -44,8 +40,8 @@ def Download(channel, shows, hd=False):
                     continue
                 #get a maximum number of episodes
                 max = len(episodes_tree)
-                if max > Settings('MaxEpisodes') > 0:
-                    max = Settings('MaxEpisodes')
+                if max > MAX_EPISODES > 0:
+                    max = MAX_EPISODES
                 for branch in range(0, max):
                     #get episode
                     link = episodes_tree[branch].xpath("./@href")
@@ -64,7 +60,7 @@ def Download(channel, shows, hd=False):
                         links = item.xpath("./following-sibling::div[1]/div//a")
                         download_fail = False
 
-                        path = os.path.join(Settings('BasePath'), show)
+                        path = os.path.join(BASE_PATH, show)
                         if not os.path.isdir(path):
                             os.makedirs(path)
                         title = show + " - " + date

@@ -17,7 +17,7 @@ Config = ""
 CONFIG_VERSION = 1.0
 
 def dumpSettings(output):
-    Settings = OrderedDict([
+    settings = OrderedDict([
         ('BasePath', BASE_PATH)
         ('MaxEpisodes', MAX_EPISODES),
         ('Downloads', OrderedDict(sorted(Downloads))),
@@ -25,7 +25,7 @@ def dumpSettings(output):
     ])
 
     with open(output, 'w') as outfile:
-        json.dump(Settings, outfile, indent=2)
+        json.dump(settings, outfile, indent=2)
 
 
 parser = argparse.ArgumentParser()
@@ -86,5 +86,7 @@ if BASE_PATH.startswith('~'):
     BASE_PATH = os.path.expanduser(BASE_PATH)
 
 for channel in Downloads:
+    BollyStop.BASE_PATH = BASE_PATH
+    BollyStop.MAX_EPISODES = MAX_EPISODES
     BollyStop.Download(channel, Downloads[channel])
 
