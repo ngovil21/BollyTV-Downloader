@@ -209,8 +209,6 @@ def GetURLSource(url, referer, date=''):
     else:
         return None, None
 
-    # return url, thumb
-    return url, host
 
 
 def replaceSpecialCharacters(sString):

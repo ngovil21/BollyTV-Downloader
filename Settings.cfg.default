@@ -2,6 +2,4 @@ BASE_PATH = '~/Downloads/BollyTV'
 MAX_EPISODES = 5
 
 Downloads = {
-    'Zee TV': ('Jodhaa Akbar',),
-    'Colors': ('Comedy Nights With Kapil', 'Chakravartin Ashoka Samrat', 'Indias Got Talent')
 }
