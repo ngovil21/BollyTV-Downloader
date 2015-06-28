@@ -4,7 +4,7 @@ import json
 import os
 import re
 import sys
-from scraper import BollyStop
+from Scraper import BollyStop
 
 BASE_PATH = '~/Downloads/BollyTV'
 MAX_EPISODES = 0
