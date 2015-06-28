@@ -1,5 +1,0 @@
-BASE_PATH = '~/Downloads/BollyTV'
-MAX_EPISODES = 5
-
-Downloads = {
-}

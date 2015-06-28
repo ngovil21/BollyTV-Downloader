@@ -18,7 +18,7 @@ CONFIG_VERSION = 1.0
 
 def dumpSettings(output):
     settings = OrderedDict([
-        ('BasePath', BASE_PATH)
+        ('BasePath', BASE_PATH),
         ('MaxEpisodes', MAX_EPISODES),
         ('Downloads', OrderedDict(sorted(Downloads))),
         ('Version', CONFIG_VERSION)
