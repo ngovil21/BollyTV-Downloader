@@ -147,39 +147,48 @@ def GetURLSource(url, referer, date=''):
             url = 'http://cdn.playwire.com/' + element.xpath("//script/@data-publisher-id")[0] + '/video-' + date + '-' + \
                   element.xpath("//script/@data-video-id")[0] + '.mp4'
             host = 'playwire'
+            return url, host
         else:
-            # Log("JSON: " + str(element.xpath("//script/@data-config")))
-            config_url = element.xpath("//script/@data-config")[0].lstrip("//")
-            if not config_url.startswith("http://"):
-                config_url = "http://" + config_url
-            json_obj = json.loads(readURL(config_url))
-            # Log("JSON: " + str(json_obj))
-            # import json
-            # Log(json.dumps(json_obj,indent=4))
-            manifest = json_obj['content']['media']['f4m']
-            # Log("Manifest: " + str(manifest))
-            content = readURL(manifest, headers={'Accept': 'text/html'}).replace('\n', '').replace('  ', '')
-            # Log("Content: " + str(content))
-            baseurl = re.search(r'>http(.*?)<', content)  # <([baseURL]+)\b[^>]*>(.*?)<\/baseURL>
-            # Log ('BaseURL: ' + baseurl.group())
-            baseurl = re.sub(r'(<|>)', "", baseurl.group())
-            # Log ('BaseURL: ' + baseurl)
-            mediaurl = re.search(r'url="(.*?)\?', content)
-            # Log ('MediaURL: ' + mediaurl.group())
-            mediaurl = re.sub(r'(url|=|\?|")', "", mediaurl.group())
-            # Log ('MediaURL: ' + mediaurl)
-            url = baseurl + "/" + mediaurl
-            host = 'playwire'
+            try:
+                # Log("JSON: " + str(element.xpath("//script/@data-config")))
+                config_url = element.xpath("//script/@data-config")[0].lstrip("//")
+                if not config_url.startswith("http://"):
+                    config_url = "http://" + config_url
+                site = readURL(config_url)
+                if not site:
+                    return None, None
+                json_obj = json.loads(site)
+                # Log("JSON: " + str(json_obj))
+                # import json
+                # Log(json.dumps(json_obj,indent=4))
+                manifest = json_obj['content']['media']['f4m']
+                # Log("Manifest: " + str(manifest))
+                content = readURL(manifest, headers={'Accept': 'text/html'}).replace('\n', '').replace('  ', '')
+                # Log("Content: " + str(content))
+                baseurl = re.search(r'>http(.*?)<', content)  # <([baseURL]+)\b[^>]*>(.*?)<\/baseURL>
+                # Log ('BaseURL: ' + baseurl.group())
+                baseurl = re.sub(r'(<|>)', "", baseurl.group())
+                # Log ('BaseURL: ' + baseurl)
+                mediaurl = re.search(r'url="(.*?)\?', content)
+                # Log ('MediaURL: ' + mediaurl.group())
+                mediaurl = re.sub(r'(url|=|\?|")', "", mediaurl.group())
+                # Log ('MediaURL: ' + mediaurl)
+                url = baseurl + "/" + mediaurl
+                host = 'playwire'
+                return url, host
+            except:
+                return None, None
     elif element.xpath("//iframe[contains(@src,'vodlocker')]"):
         url = element.xpath("//iframe[contains(@src,'vodlocker')]/@src")[0]
         source = readURL(url)
         source = source.replace('|', '/')
         file = re.compile('file: "([^"]+)"').findall(source)
+        host = 'vodlocker'
         if file:
             url = file[0]
+            return url, host
         else:
             return None,None
-        host = 'vodlocker'
     elif element.xpath("//iframe[contains(@src,'cloudy')]"):
         link = element.xpath("//iframe[contains(@src,'cloudy')]/@src")[0]
         site = readURL(link)
@@ -190,11 +199,13 @@ def GetURLSource(url, referer, date=''):
             #Log(file_id)
             key = re.compile('key:[ ]?"([^"]+)"').findall(site)[0]
             #Log(key)
-            api_call = ('http://www.cloudy.ec/api/player.api.php?user=undefined&codes=1&file=%s&pass=undefined&key=%s') % (file_id, key)
+            api_call = 'http://www.cloudy.ec/api/player.api.php?user=undefined&codes=1&file=%s&pass=undefined&key=%s' % (file_id, key)
             site = readURL(api_call)
             content = re.compile('url=([^&]+)&').findall(site)
             if content:
                 url = urllib.request.unquote(content[0])
+                return url, host
+        return None, None
     else:
         return None, None
 
