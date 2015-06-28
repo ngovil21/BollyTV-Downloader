@@ -7,13 +7,13 @@ import sys
 import BollyStop
 
 BASE_PATH = '~/Downloads/BollyTV'
-MAX_EPISODES = 5
+MAX_EPISODES = 0
 
 Downloads = {
-    'Zee TV': ('Jodhaa Akbar',),
-    'Colors': ('Comedy Nights With Kapil', 'Chakravartin Ashoka Samrat', 'Indias Got Talent')
+
 }
 
+Config = ""
 CONFIG_VERSION = 1.0
 
 def dumpSettings(output):

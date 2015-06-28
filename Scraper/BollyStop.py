@@ -44,7 +44,7 @@ def Download(channel, shows, hd=False):
                     continue
                 #get a maximum number of episodes
                 max = len(episodes_tree)
-                if max > Settings('MaxEpisodes'):
+                if max > Settings('MaxEpisodes') > 0:
                     max = Settings('MaxEpisodes')
                 for branch in range(0, max):
                     #get episode
