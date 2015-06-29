@@ -10,6 +10,9 @@ BASE_PATH = '~/Downloads/BollyTV'
 MAX_EPISODES = 0
 
 Downloads = {
+    "ZeeTV": [],
+    "Colors": [],
+    "Sony TV": []
 
 }
 
@@ -20,7 +23,7 @@ def dumpSettings(output):
     settings = OrderedDict([
         ('BasePath', BASE_PATH),
         ('MaxEpisodes', MAX_EPISODES),
-        ('Downloads', OrderedDict(sorted(Downloads))),
+        ('Downloads', OrderedDict(sorted(Downloads.items()))),
         ('Version', CONFIG_VERSION)
     ])
 
@@ -80,6 +83,8 @@ if args.update_config:
     else:
         print("No Config file specified!")
         exit()
+
+print(Downloads)
 
 BASE_PATH = os.path.normpath(BASE_PATH)
 if BASE_PATH.startswith('~'):
