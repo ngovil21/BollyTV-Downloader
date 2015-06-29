@@ -1,13 +1,12 @@
 import datetime
-from http.client import HTTPResponse
-from io import StringIO
 import json
 import os
 import shutil
-import lxml.html as html
-from lxml import etree
 import re
-import urllib.request, urllib.parse
+import urllib.request
+import urllib.parse
+
+import lxml.html as html
 
 URL_HOME = "http://www.bollystop.com/"
 
@@ -27,13 +26,12 @@ def Download(channel, shows, hd=False):
         #get shows for channel
         for show in shows:
             print(show)
-            show = show.lower()
+            showmatch = show.lower()
             # tree = channel_source.xpath("//ul[@id='main']/li/p[@class='desc']/a[contains(text(),'" + show + "')]")
             tree_a = channel_source.xpath("//ul[@id='main']/li/p[@class='desc']/a")
             for e in tree_a:
-                if show in e.text.lower():
+                if showmatch in e.text.lower():
                     tree = e
-                    show = e.text
                     break
             #check if channel found
             if tree is not None:
@@ -96,7 +94,7 @@ def Download(channel, shows, hd=False):
                             if not href.startswith("http:"):
                                 href = URL_HOME + href
                             #get direct url from video host
-                            link, host = GetURLSource(redirect, href)
+                            link, host = GetURLSource(redirect, href, date)
                             if not link:
                                 download_fail = True
                                 break
