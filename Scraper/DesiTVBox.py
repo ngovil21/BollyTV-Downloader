@@ -1,3 +1,6 @@
+__author__ = 'Nikhil'
+
+
 import datetime
 import json
 import os
@@ -8,8 +11,8 @@ import urllib.parse
 
 import lxml.html as html
 
-HOST_NAME = "BollyStop"
-URL_HOME = "http://www.bollystop.com/"
+HOST_NAME = "DesiTVBox"
+URL_HOME = "http://www.desitvbox.me/"
 
 
 BASE_PATH = '~/Downloads/BollyTV'
@@ -18,30 +21,25 @@ MAX_EPISODES = 0
 
 def Download(channel, shows, hd=False):
     #get channel
-    source = html.parse(URL_HOME + "hindi-serial.html")
-    channel_search = channel.replace('Zee', 'Jii').replace(' ', '-')
-    tree = source.xpath("//div[@id='content']/div/div[@class='channel_wrapper']/h3/a[contains(text(),'" + channel_search + "')]")
+    if isinstance(shows, str):
+        shows = [shows, ]
+    source = html.parse(URL_HOME)
+    tree = source.xpath("//div[@id='left-inside']/div/table/tbody/tr/td/strong[contains(text(),'" + channel + "')]")
     if tree:
-        link = tree[0].xpath("./@href")[0]
-        channel_source = html.parse(link)
+        channel_shows = tree[0].xpath("./following-sibling::ul/li/a")
         #get shows for channel
         for show in shows:
             print(show)
-            showmatch = show.lower()
-            # tree = channel_source.xpath("//ul[@id='main']/li/p[@class='desc']/a[contains(text(),'" + show + "')]")
-            tree_a = channel_source.xpath("//ul[@id='main']/li/p[@class='desc']/a")
-            for e in tree_a:
-                if showmatch in e.text.lower():
+            for e in channel_shows:
+                if show.lower() in e.text.lower():
                     tree = e
                     break
             #check if channel found
             if tree is not None:
-                link = tree.xpath("./@href")[0]
-                #print(link)
-                link = link.replace("id/", "episodes/")
-                episodes_source = html.parse(link)
+                episode_link = tree.xpath("./@href")[0]
+                episodes_source = html.parse(episode_link)
                 #get episode list for show
-                episodes_tree = episodes_source.xpath("//div[@id='serial_episodes']/div/div[2]/a")
+                episodes_tree = episodes_source.xpath("//div[@id='left-inside']/div/h2[@class='titles']/a[contains(text(),'Watch')]")
                 if not episodes_tree:
                     continue
                 #get a maximum number of episodes
@@ -50,29 +48,30 @@ def Download(channel, shows, hd=False):
                     max = MAX_EPISODES
                 for branch in range(0, max):
                     #get episode
-                    link = episodes_tree[branch].xpath("./@href")
-                    if not link:
+                    episode_links = episodes_tree[branch].xpath("./@href")
+                    link_text = episodes_tree[branch].text
+                    if not episode_links:
                         continue
-                    xdate = episodes_tree[branch].xpath("../../div[@class='episode_date']")
-                    if xdate:
-                        text = xdate[0].xpath("./text()")[0]
-                        date = getDate(text)
-                    else:
-                        date = datetime.date.today().strftime("%m-%d-%Y")
-                    episode_source = html.parse(link[0])
-                    episode_tree_hd = episode_source.xpath("//div[@id='serial_episodes']/h3[contains(text(),'HD')]")
-                    episode_tree_sd = episode_source.xpath("//div[@id='serial_episodes']/h3[not(contains(text(),'HD'))]")
+                    episode_source = html.parse(episode_links[0])
+                    post_date = episode_source.xpath(".//*[@id='left-inside']/div/div[@class='post-info']/text()")
+                    episode_tree_hd = episode_source.xpath(".//*[@id='left-inside']/div/center/p//span[contains(text(),'HD')]")
+                    episode_tree_sd = episode_source.xpath(".//*[@id='left-inside']/div/center/p//span[not(contains(text(),'HD'))]")
                     episode_tree = []
+                    date = ""
+                    if link_text:
+                        date = getDate(link_text)
+                    if not date and post_date:
+                        date = getDate(post_date[0])
                     for e in episode_tree_hd:
                         episode_tree.append(e)
                     if not hd:
                         for e in episode_tree_sd:
                             episode_tree.append(e)
                     #create download path
-                    path = os.path.join(BASE_PATH, show)
+                    path = os.path.join(os.path.expanduser(BASE_PATH), show)
                     if not os.path.isdir(path):
                         os.makedirs(path)
-                    title = show + " - " + date
+                    title = show + "." + date
                     path = os.path.join(path, title)
                     if os.path.exists(path):
                         if len(os.listdir(path)) > 0:
@@ -84,34 +83,31 @@ def Download(channel, shows, hd=False):
                     download_fail = False
                     for item in episode_tree:
                         print(item.xpath('./text()')[0])
-                        links = item.xpath("./following-sibling::div[1]/div//a")
+                        links = item.xpath("../../following-sibling::p[1]/a")
                         download_fail = False
                         #download links
                         for i in range(0, len(links)):
                             href = links[i].xpath("@href")[0]
-                            #title = links[i].xpath("./text()")[0].strip()
-                            match = re.compile('redirector.php\?r=(.+?)&s=(.+?)').search(href)
-                            redirect = match.group(1)
                             if not href.startswith("http:"):
                                 href = URL_HOME + href
                             #get direct url from video host
-                            link, host = GetURLSource(redirect, href, date)
-                            if not link:
+                            episode_link, host = GetURLSource(href, episode_links[0], date)
+                            if not episode_link:
                                 download_fail = True
                                 break
                             print(title)
-                            print(host + ": " + link)
+                            print(host + ": " + episode_link)
                             try:
                                 if len(links) > 1:
-                                    episode_title = title + " Part " + "%02d" % int(i+1)
+                                    episode_title = title + ".Part." + "%02d" % int(i+1)
                                 else:
                                     episode_title = title
                                 #retrieve file, store as temporary .part file
-                                (filename, headers) = urllib.request.urlretrieve(url=link, filename=os.path.join(path, episode_title + ".part"))
+                                (filename, headers) = urllib.request.urlretrieve(url=episode_link, filename=os.path.join(path, episode_title + ".part"))
                                 #try to get extension from information provided
-                                if 'mp4' in headers['Content-Type'] or 'mp4' in link:
+                                if 'mp4' in headers['Content-Type'] or 'mp4' in episode_link:
                                     ext = '.mp4'
-                                elif 'flv' in headers['Content-Type'] or 'flv' in link:
+                                elif 'flv' in headers['Content-Type'] or 'flv' in episode_link:
                                     ext = '.flv'
                                 else:
                                     raise Exception("Unknown File Type: " + headers['Content-Type'])
@@ -132,11 +128,12 @@ def Download(channel, shows, hd=False):
                         if os.path.exists(path):
                             shutil.rmtree(path)
 
-def GetURLSource(url, referer, date=''):
-    response = readURL(url, referer=referer, raw=True)
-    if not response:
-        return None, None
-    element = html.parse(response)
+def GetURLSource(url, referer=None, date=''):
+    # response = readURL(url, referer=referer, raw=True)
+    element = html.parse(url)
+    # if not response:
+    #     return None, None
+    # element = html.parse(response)
     string = html.tostring(element).decode('utf-8')
     #print(string)
     host = ''
@@ -149,6 +146,13 @@ def GetURLSource(url, referer, date=''):
         site = replaceSpecialCharacters(site)
         patterns = ['"stream_h264_hd1080_url":"(.+?)"', '"stream_h264_hd_url":"(.+?)"', '"stream_h264_hq_url":"(.+?)"', '"stream_h264_url":"(.+?)"', '"stream_h264_ld_url":"(.+?)"']
         for pat in patterns:
+            match = re.compile(pat, re.IGNORECASE).findall(site)
+            if match:
+                url = urllib.request.unquote(match[0])
+                host = 'dailymotion'
+                return url, host
+        patterns2 = ['"1080":.+(http:.+?)"','"720":.+(http:.+?)"', '"480":.+(http:.+?)"', '"380":.+(http:.+?)"', '"240":.+(http:.+?)"']
+        for pat in patterns2:
             match = re.compile(pat, re.IGNORECASE).findall(site)
             if match:
                 url = urllib.request.unquote(match[0])
@@ -247,7 +251,7 @@ def readURL(url, referer=None, headers={}, raw=False):
 
 def getDate(text):
     months = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
-    match = re.compile("([\d]+)(st|nd|rd|th) ([\w]+)").search(text)
+    match = re.compile("([\d]+)(st|nd|rd|th) ([\w]+) +([\d]+)").search(text)
     if match:
         day = match.group(1)
         month = match.group(3)
@@ -255,6 +259,6 @@ def getDate(text):
             if month in months[i]:
                 month = i+1
                 break
-        year = str(datetime.date.today().year)
+        year = match.group(4)
         text = "%02d-%02d-%s" % (month, int(day), year)
     return text
