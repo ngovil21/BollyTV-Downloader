@@ -26,8 +26,10 @@ def Download(channel, shows, hd=False):
     if isinstance(shows, str):
         shows = [shows, ]
     source = html.parse(URL_HOME)
-    tree = source.xpath("//div[@id='left-inside']/div/table/tbody/tr/td/strong[contains(text(),'" + channel + "')]")
-    if tree:
+    tree = source.xpath("//div[@id='left-inside']/div/table/tbody/tr/td/strong")
+    for a in tree:
+        if fuzz.partial_ratio(a.text, channel) < FUZZY_MATCH:
+            continue
         channel_shows = tree[0].xpath("./following-sibling::ul/li/a")
         # get shows for channel
         for show in shows:

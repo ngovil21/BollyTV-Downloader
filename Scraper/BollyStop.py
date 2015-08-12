@@ -25,10 +25,11 @@ def Download(channel, shows, hd=False):
         shows = [shows, ]
     source = html.parse(URL_HOME + "hindi-serial.html")
     channel_search = channel.replace('Zee', 'Jii').replace(' ', '-')
-    tree = source.xpath(
-        "//div[@id='content']/div/div[@class='channel_wrapper']/h3/a[contains(text(),'" + channel_search + "')]")
-    if tree:
-        link = tree[0].xpath("./@href")[0]
+    tree = source.xpath("//div[@id='content']/div/div[@class='channel_wrapper']/h3/a")
+    for b in tree:
+        if fuzz.partial_ratio(b.text, channel_search) < FUZZY_MATCH:
+            continue
+        link = b.xpath("./@href")[0]
         channel_source = html.parse(link)
         # get shows for channel
         for show in shows:
