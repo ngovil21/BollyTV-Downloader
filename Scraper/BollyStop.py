@@ -30,11 +30,11 @@ def Download(channel, shows, hd=False):
         # get shows for channel
         for show in shows:
             print(show)
-            showmatch = show.lower()
+            showmatch = show.lower().replace("'", "").replace("-", "").replace(":", "").replace('"', "").replace(",","")
             tree = None
             tree_a = channel_source.xpath("//ul[@id='main']/li/p[@class='desc']/a")
             for e in tree_a:
-                if showmatch in e.text.lower():
+                if showmatch in e.text.lower().replace("'", "").replace("-", "").replace(":", "").replace('"', "").replace(",",""):
                     tree = e
                     break
             # check if channel found
