@@ -29,6 +29,7 @@ def Download(channel, shows, hd=False):
         # get shows for channel
         for show in shows:
             print(show)
+            tree = None
             for e in channel_shows:
                 if show.lower() in e.text.lower():
                     tree = e
