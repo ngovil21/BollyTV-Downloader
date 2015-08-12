@@ -90,7 +90,7 @@ def Download(channel, shows, hd=False):
                     for item in episode_tree:
                         print(item.xpath('./text()')[0])
                         links = item.xpath("../../following-sibling::p[1]/a")
-                        download_fail = False
+                        download_fail = True
                         # download links
                         for i in range(0, len(links)):
                             href = links[i].xpath("@href")[0]
@@ -123,6 +123,7 @@ def Download(channel, shows, hd=False):
                                     raise Exception("Unknown File Type: " + headers['Content-Type'])
                                 # move file with extension
                                 shutil.move(filename, os.path.join(path, episode_title + ext))
+                                download_fail = False
                             except Exception as e:
                                 print(e)
                                 download_fail = True
@@ -146,11 +147,11 @@ def setParameters(base_path, maximum_episodes, remove_spaces):
 
 def GetURLSource(url, referer = None, date = ''):
     # response = readURL(url, referer=referer, raw=True)
-    element = html.parse(url)
-    # if not response:
-    #     return None, None
-    # element = html.parse(response)
-    string = html.tostring(element).decode('utf-8')
+    try:
+        element = html.parse(url)
+        string = html.tostring(element).decode('utf-8')
+    except:
+        return None, None
     # print(string)
     host = ''
     if element.xpath("//iframe[contains(@src,'dailymotion')]"):
