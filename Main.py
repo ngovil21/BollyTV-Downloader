@@ -4,10 +4,12 @@ import json
 import os
 import re
 import sys
+
 from Scraper import BollyStop, DesiTVBox
 
 BASE_PATH = '~/Downloads/BollyTV'
 MAX_EPISODES = 0
+REMOVE_SPACES = True
 
 Downloads = {
     "ZeeTV": [],
@@ -93,15 +95,13 @@ if BASE_PATH.startswith('~'):
 for host in Downloads:
     channel_dict = Downloads[host]
     if host == BollyStop.HOST_NAME:
+        BollyStop.setParameters(BASE_PATH, MAX_EPISODES, REMOVE_SPACES)
         print("Downloading from " + BollyStop.HOST_NAME)
         for channel in channel_dict:
-            BollyStop.BASE_PATH = BASE_PATH
-            BollyStop.MAX_EPISODES = MAX_EPISODES
             BollyStop.Download(channel, channel_dict[channel])
     elif host == DesiTVBox.HOST_NAME:
+        DesiTVBox.setParameters(BASE_PATH, MAX_EPISODES, REMOVE_SPACES)
         print("Downloading from " + DesiTVBox.HOST_NAME)
         for channel in channel_dict:
-            DesiTVBox.BASE_PATH = BASE_PATH
-            DesiTVBox.MAX_EPISODES = MAX_EPISODES
             DesiTVBox.Download(channel, channel_dict[channel])
 
