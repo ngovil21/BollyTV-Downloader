@@ -9,7 +9,7 @@ from Scraper import BollyStop, DesiTVBox
 
 BASE_PATH = '~/Downloads/BollyTV'
 MAX_EPISODES = 0
-REMOVE_SPACES = True
+REMOVE_SPACES = False
 
 Downloads = {
     "ZeeTV": [],

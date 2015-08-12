@@ -108,7 +108,7 @@ def Download(channel, shows, hd=False):
                             print(host + ": " + episode_link)
                             try:
                                 if len(links) > 1:
-                                    episode_title = title + ".Part." + "%02d" % int(i + 1)
+                                    episode_title = title + " Part " + "%02d" % int(i + 1)
                                 else:
                                     episode_title = title
                                 if REMOVE_SPACES:
