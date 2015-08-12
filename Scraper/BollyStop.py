@@ -31,7 +31,7 @@ def Download(channel, shows, hd=False):
         for show in shows:
             print(show)
             showmatch = show.lower()
-            # tree = channel_source.xpath("//ul[@id='main']/li/p[@class='desc']/a[contains(text(),'" + show + "')]")
+            tree = None
             tree_a = channel_source.xpath("//ul[@id='main']/li/p[@class='desc']/a")
             for e in tree_a:
                 if showmatch in e.text.lower():
