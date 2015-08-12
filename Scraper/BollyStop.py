@@ -6,6 +6,8 @@ import re
 import urllib.request
 import urllib.parse
 
+from fuzzywuzzy import fuzz
+
 import lxml.html as html
 
 HOST_NAME = "BollyStop"
@@ -14,6 +16,7 @@ URL_HOME = "http://www.bollystop.com/"
 BASE_PATH = '~/Downloads/BollyTV'
 MAX_EPISODES = 0
 REMOVE_SPACES = True
+FUZZY_MATCH = 90
 
 
 def Download(channel, shows, hd=False):
@@ -30,11 +33,10 @@ def Download(channel, shows, hd=False):
         # get shows for channel
         for show in shows:
             print(show)
-            showmatch = show.lower().replace("'", "").replace("-", "").replace(":", "").replace('"', "").replace(",","")
             tree = None
             tree_a = channel_source.xpath("//ul[@id='main']/li/p[@class='desc']/a")
             for e in tree_a:
-                if showmatch in e.text.lower().replace("'", "").replace("-", "").replace(":", "").replace('"', "").replace(",",""):
+                if fuzz.partial_ratio(e.text.lower(), show.lower()) >= FUZZY_MATCH:
                     tree = e
                     break
             # check if channel found

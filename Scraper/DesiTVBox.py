@@ -1,3 +1,5 @@
+from fuzzywuzzy import fuzz
+
 __author__ = 'Nikhil'
 
 import datetime
@@ -16,6 +18,7 @@ URL_HOME = "http://www.desitvbox.me/"
 BASE_PATH = '~/Downloads/BollyTV'
 MAX_EPISODES = 0
 REMOVE_SPACES = True
+FUZZY_MATCH = 90
 
 
 def Download(channel, shows, hd=False):
@@ -31,7 +34,7 @@ def Download(channel, shows, hd=False):
             print(show)
             tree = None
             for e in channel_shows:
-                if show.lower() in e.text.lower():
+                if fuzz.partial_ratio(e.text.lower(), show.lower()) >= FUZZY_MATCH:
                     tree = e
                     break
             # check if channel found
