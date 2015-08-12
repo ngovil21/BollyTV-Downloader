@@ -18,7 +18,7 @@ URL_HOME = "http://www.desitvbox.me/"
 BASE_PATH = '~/Downloads/BollyTV'
 MAX_EPISODES = 0
 REMOVE_SPACES = True
-FUZZY_MATCH = 90
+FUZZY_MATCH = 85
 
 
 def Download(channel, shows, hd=False):
@@ -30,7 +30,8 @@ def Download(channel, shows, hd=False):
     for a in tree:
         if fuzz.partial_ratio(a.text, channel) < FUZZY_MATCH:
             continue
-        channel_shows = tree[0].xpath("./following-sibling::ul/li/a")
+        print(channel + ": " + str(fuzz.partial_ratio(a.text, channel)))
+        channel_shows = a.xpath("./following-sibling::ul/li/a")
         # get shows for channel
         for show in shows:
             print(show)
