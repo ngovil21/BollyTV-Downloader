@@ -76,9 +76,11 @@ def Download(channel, shows, hd=False):
                         date = getDate(link_text)
                     if not date and post_date:
                         date = getDate(post_date[0])
+                    index = 0
                     for e in episode_tree_hd:
                         if 'Single Link' in e.text:   #Prioritize Single Links
-                            episode_tree.insert(0, e)
+                            episode_tree.insert(index, e)
+                            index += 1
                         else:
                             episode_tree.append(e)
                     if not hd:
