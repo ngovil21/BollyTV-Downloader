@@ -285,3 +285,27 @@ def getDate(text):
         text = "%02d-%02d-%s" % (month, int(day), year)
     return text
 
+def getChannels(links=False):
+    source = html.parse(URL_HOME + "hindi-serial.html")
+    tree = source.xpath("//div[@id='content']/div/div[@class='channel_wrapper']/h3/a")
+    channels = []
+    channel_links = []
+    for b in tree:
+        channels.append(b.text)
+        channel_links.append(b.xpath("./@href")[0])
+    if links:
+        return channels, channel_links
+    else:
+        return channels
+
+def getShows(channel):
+    shows = []
+    channels, links = getChannels(True)
+    for i in range(0, len(channels)):
+        if channels[i] == channel:
+            channel_source = html.parse(links[i])
+            channel_shows = channel_source.xpath("//ul[@id='main']/li/p[@class='desc']/a")
+            for show in channel_shows:
+                shows.append(show)
+    return shows
+

@@ -291,3 +291,27 @@ def getDate(text):
         year = match.group(4)
         text = "%02d-%02d-%s" % (month, int(day), year)
     return text
+
+def getChannels():
+    source = html.parse(URL_HOME)
+    tree = source.xpath("//div[@id='left-inside']/div/table/tbody/tr/td/strong")
+    channels = []
+    channel_links = []
+    for b in tree:
+        channels.append(b.text)
+
+    return channels
+
+def getShows(channel):
+    shows = []
+    source = html.parse(URL_HOME)
+    tree = source.xpath("//div[@id='left-inside']/div/table/tbody/tr/td/strong")
+    for c in tree:
+        if c.text == channel:
+            channel_shows = c.xpath("./following-sibling::ul/li/a")
+            for show in channel_shows:
+                shows.append(show.text)
+
+    return shows
+
+
