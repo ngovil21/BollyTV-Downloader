@@ -18,6 +18,9 @@ MAX_EPISODES = 0
 REMOVE_SPACES = True
 FUZZY_MATCH = 90
 
+def print_progress(count, blockSize, totalSize):
+    percent = int(count * blockSize * 100 / totalSize)
+    print("\r%2.0f%% Done" % percent, end="")
 
 def Download(channel, shows, hd=False):
     # get channel
@@ -119,7 +122,7 @@ def Download(channel, shows, hd=False):
                                     episode_title.replace(" ", ".")
                                     while episode_title.find("..") != -1:
                                         episode_title.replace("..", "")
-                                (filename, headers) = urllib.request.urlretrieve(url=link, filename=os.path.join(path, episode_title + ".part"))
+                                (filename, headers) = urllib.request.urlretrieve(url=link, filename=os.path.join(path, episode_title + ".part"),reporthook=print_progress)
                                 # try to get extension from information provided
                                 if 'mp4' in headers['Content-Type'] or 'mp4' in link:
                                     ext = '.mp4'

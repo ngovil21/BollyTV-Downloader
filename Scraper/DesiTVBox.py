@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import re
+import time
 import urllib.request
 import urllib.parse
 
@@ -20,6 +21,10 @@ MAX_EPISODES = 0
 REMOVE_SPACES = True
 FUZZY_MATCH = 85
 
+
+def print_progress(count, blockSize, totalSize):
+    percent = int(count * blockSize * 100 / totalSize)
+    print("\r%2.0f%% Done" % percent, end="")
 
 def Download(channel, shows, hd=False):
     # get channel
@@ -72,7 +77,10 @@ def Download(channel, shows, hd=False):
                     if not date and post_date:
                         date = getDate(post_date[0])
                     for e in episode_tree_hd:
-                        episode_tree.append(e)
+                        if 'Single Link' in e.text:   #Prioritize Single Links
+                            episode_tree.insert(0, e)
+                        else:
+                            episode_tree.append(e)
                     if not hd:
                         for e in episode_tree_sd:
                             episode_tree.append(e)
@@ -117,7 +125,7 @@ def Download(channel, shows, hd=False):
                                     while episode_title.find("..") != -1:
                                         episode_title = episode_title.replace("..", "")
                                 # retrieve file, store as temporary .part file
-                                (filename, headers) = urllib.request.urlretrieve(url=episode_link, filename=os.path.join(path, episode_title + ".part"))
+                                (filename, headers) = urllib.request.urlretrieve(url=episode_link, filename=os.path.join(path, episode_title + ".part"), reporthook=print_progress)
                                 # try to get extension from information provided
                                 if 'mp4' in headers['Content-Type'] or 'mp4' in episode_link:
                                     ext = '.mp4'
@@ -153,6 +161,17 @@ def GetURLSource(url, referer = None, date = ''):
     # response = readURL(url, referer=referer, raw=True)
     try:
         element = html.parse(url)
+        while True:
+            attr = element.xpath("//meta[translate(@http-equiv, 'REFSH', 'refsh') = 'refresh']/@content")
+            if not attr:
+                break
+            wait, text = attr[0].split(";")
+            if text.lower().startswith("url="):
+                ref=url
+                url = text[4:]
+                if not url.startswith('http'):
+                    url = urllib.parse.urljoin(ref, url)
+            element = html.parse(url)
         string = html.tostring(element).decode('utf-8')
     except:
         return None, None
@@ -250,6 +269,28 @@ def GetURLSource(url, referer = None, date = ''):
                 url = urllib.request.unquote(content[0])
                 return url, host
         return None, None
+    elif element.xpath("//iframe[contains(@src,'vidto')]"):
+        link = element.xpath("//iframe[contains(@src,'vidto')]/@src")[0]
+        link = link.replace('embed-','')
+        link = re.sub(r'\-.*\.html',r'',link)
+        site = readURL(link)
+        site = replaceSpecialCharacters(site)
+        sPattern = '<input type="hidden" name="(.+?)" value="(.*?)">'
+        matches = re.compile(sPattern).findall(site)
+        host="vidto"
+        if matches:
+            for match in matches:
+                if match[1] == 'referer':
+                    match[2] = link
+                    break
+            time.sleep(7)
+            site = readURL(url=link, data=matches)
+            match = re.compile("file_link = '(.+?)'").search(site)
+            if match:
+                url = match.group(1)
+                return url, host
+        return None, None
+
     else:
         return None, None
 
@@ -260,9 +301,11 @@ def replaceSpecialCharacters(sString):
                                                                                                               "'")
 
 
-def readURL(url, referer = None, headers = {}, raw = False):
+def readURL(url, referer = None, headers = {}, data=None, raw=False):
     try:
-        request = urllib.request.Request(url=url, headers=headers)
+        if data:
+            data = urllib.parse.urlencode(data).encode('utf-8')
+        request = urllib.request.Request(url=url, data=data, headers=headers)
         if referer:
             request.add_header('Referer', referer)
         response = urllib.request.urlopen(request)
