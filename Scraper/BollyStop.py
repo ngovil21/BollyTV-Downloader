@@ -80,6 +80,7 @@ def Download(channel, shows, hd=False):
                     if not os.path.isdir(path):
                         os.makedirs(path)
                     title = show + " - " + date
+                    print(title)
                     path = os.path.join(path, title)
                     if os.path.exists(path):
                         if len(os.listdir(path)) > 0:
