@@ -10,6 +10,7 @@ import re
 import time
 import urllib.request
 import urllib.parse
+import time
 
 import lxml.html as html
 
@@ -40,6 +41,10 @@ def Download(channel, shows, hd=False):
         channel_shows = a.xpath("./following-sibling::ul/li/a")
         # get shows for channel
         for show in shows:
+            today = time.strftime("%m-%d-%Y")
+            if os.path.exists(os.path.join(BASE_PATH, show, show + " - " + today)):
+                print("Show already downloaded today.")
+                continue
             print(show)
             tree = None
             for e in channel_shows:
