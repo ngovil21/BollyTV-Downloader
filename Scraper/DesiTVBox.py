@@ -109,7 +109,7 @@ def Download(channel, shows, hd=False):
                     print(title)
                     path = os.path.join(path, title)
                     if os.path.exists(path) or os.path.exists(os.path.join(path, show + " - " + date)):
-                        if len(os.listdir(path)) > 0 or len(os.path.join(path, show + " - " + date)) > 0:
+                        if (len(os.listdir(path)) > 0) or (len(os.path.join(path, show + " - " + date)) > 0):
                             print("Non-empty folder exists. Assume already downloaded")
                             continue
                     else:
@@ -144,10 +144,12 @@ def Download(channel, shows, hd=False):
                                 # retrieve file, store as temporary .part file
                                 (filename, headers) = urllib.request.urlretrieve(url=episode_link, filename=os.path.join(path, episode_title + ".part"), reporthook=Common.print_progress)
                                 # try to get extension from information provided
-                                if 'mp4' in headers['Content-Type'] or 'mp4' in episode_link:
+                                if 'mp4' in headers['Content-Type'] or '.mp4' in episode_link:
                                     ext = '.mp4'
-                                elif 'flv' in headers['Content-Type'] or 'flv' in episode_link:
+                                elif 'flv' in headers['Content-Type'] or '.flv' in episode_link:
                                     ext = '.flv'
+                                elif 'avi' in headers['Content-Type'] or '.avi' in episode_link:
+                                    ext = '.avi'
                                 else:
                                     raise Exception("Unknown File Type: " + headers['Content-Type'])
                                 # move file with extension
