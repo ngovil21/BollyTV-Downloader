@@ -12,6 +12,8 @@ import urllib.request
 import urllib.parse
 import time
 
+import Common
+
 import lxml.html as html
 
 HOST_NAME = "DesiTVBox"
@@ -22,10 +24,6 @@ MAX_EPISODES = 0
 REMOVE_SPACES = True
 FUZZY_MATCH = 85
 
-
-def print_progress(count, blockSize, totalSize):
-    percent = int(count * blockSize * 100 / totalSize)
-    print("\r%2.0f%% Done" % percent, end="")
 
 def Download(channel, shows, hd=False):
     # get channel
@@ -47,9 +45,13 @@ def Download(channel, shows, hd=False):
                 continue
             print(show)
             tree = None
+            season = ""
             for e in channel_shows:
                 partial = fuzz.partial_ratio(e.text.lower(), show.lower())
                 if partial >= FUZZY_MATCH:
+                    season_match = re.compile('Season[ ]?[/d]+').search(e.text.lower())
+                    if season_match:
+                        season = season_match.group(1)
                     print(show + ": " + str(partial))
                     tree = e
                     break
@@ -95,7 +97,9 @@ def Download(channel, shows, hd=False):
                         for e in episode_tree_sd:
                             episode_tree.append(e)
                     # create download path
-                    path = os.path.join(BASE_PATH, show)
+                    if not season:
+                        season = "1"
+                    path = os.path.join(BASE_PATH, show, "Season "+season)
                     if not os.path.isdir(path):
                         os.makedirs(path)
                     title = show + " - " + date
@@ -135,7 +139,7 @@ def Download(channel, shows, hd=False):
                                     while episode_title.find("..") != -1:
                                         episode_title = episode_title.replace("..", "")
                                 # retrieve file, store as temporary .part file
-                                (filename, headers) = urllib.request.urlretrieve(url=episode_link, filename=os.path.join(path, episode_title + ".part"), reporthook=print_progress)
+                                (filename, headers) = urllib.request.urlretrieve(url=episode_link, filename=os.path.join(path, episode_title + ".part"), reporthook=Common.print_progress)
                                 # try to get extension from information provided
                                 if 'mp4' in headers['Content-Type'] or 'mp4' in episode_link:
                                     ext = '.mp4'
@@ -168,7 +172,7 @@ def setParameters(base_path, maximum_episodes, remove_spaces):
     REMOVE_SPACES = remove_spaces
 
 def GetURLSource(url, referer = None, date = ''):
-    # response = readURL(url, referer=referer, raw=True)
+    # response = Common.readURL(url, referer=referer, raw=True)
     try:
         element = html.parse(url)
         while True:
@@ -189,11 +193,11 @@ def GetURLSource(url, referer = None, date = ''):
     host = ''
     if element.xpath("//iframe[contains(@src,'dailymotion')]"):
         link = element.xpath("//iframe[contains(@src,'dailymotion')]/@src")[0]
-        link = replaceSpecialCharacters(link)
-        site = readURL(link)
+        link = Common.replaceSpecialCharacters(link)
+        site = Common.readURL(link)
         if not site:
             return None, None
-        site = replaceSpecialCharacters(site)
+        site = Common.replaceSpecialCharacters(site)
         patterns = ['"stream_h264_hd1080_url":"(.+?)"', '"stream_h264_hd_url":"(.+?)"', '"stream_h264_hq_url":"(.+?)"',
                     '"stream_h264_url":"(.+?)"', '"stream_h264_ld_url":"(.+?)"']
         for pat in patterns:
@@ -226,7 +230,7 @@ def GetURLSource(url, referer = None, date = ''):
                 config_url = element.xpath("//script/@data-config")[0].lstrip("//")
                 if not config_url.startswith("http://"):
                     config_url = "http://" + config_url
-                site = readURL(config_url)
+                site = Common.readURL(config_url)
                 if not site:
                     return None, None
                 json_obj = json.loads(site)
@@ -235,7 +239,7 @@ def GetURLSource(url, referer = None, date = ''):
                 # Log(json.dumps(json_obj,indent=4))
                 manifest = json_obj['content']['media']['f4m']
                 # Log("Manifest: " + str(manifest))
-                content = readURL(manifest, headers={'Accept': 'text/html'}).replace('\n', '').replace('  ', '')
+                content = Common.readURL(manifest, headers={'Accept': 'text/html'}).replace('\n', '').replace('  ', '')
                 # Log("Content: " + str(content))
                 baseurl = re.search(r'>http(.*?)<', content)  # <([baseURL]+)\b[^>]*>(.*?)<\/baseURL>
                 # Log ('BaseURL: ' + baseurl.group())
@@ -252,7 +256,7 @@ def GetURLSource(url, referer = None, date = ''):
                 return None, None
     elif element.xpath("//iframe[contains(@src,'vodlocker')]"):
         url = element.xpath("//iframe[contains(@src,'vodlocker')]/@src")[0]
-        source = readURL(url)
+        source = Common.readURL(url)
         source = source.replace('|', '/')
         file = re.compile('file: "([^"]+)"').findall(source)
         host = 'vodlocker'
@@ -263,7 +267,7 @@ def GetURLSource(url, referer = None, date = ''):
             return None, None
     elif element.xpath("//iframe[contains(@src,'cloudy')]"):
         link = element.xpath("//iframe[contains(@src,'cloudy')]/@src")[0]
-        site = readURL(link)
+        site = Common.readURL(link)
         file = re.compile('file:[ ]?"([^"]+)"').findall(site)
         host = 'cloudy'
         if file:
@@ -273,7 +277,7 @@ def GetURLSource(url, referer = None, date = ''):
             # Log(key)
             api_call = 'http://www.cloudy.ec/api/player.api.php?user=undefined&codes=1&file=%s&pass=undefined&key=%s' % (
             file_id, key)
-            site = readURL(api_call)
+            site = Common.readURL(api_call)
             content = re.compile('url=([^&]+)&').findall(site)
             if content:
                 url = urllib.request.unquote(content[0])
@@ -283,8 +287,8 @@ def GetURLSource(url, referer = None, date = ''):
         link = element.xpath("//iframe[contains(@src,'vidto')]/@src")[0]
         link = link.replace('embed-','')
         link = re.sub(r'\-.*\.html',r'',link)
-        site = readURL(link)
-        site = replaceSpecialCharacters(site)
+        site = Common.readURL(link)
+        site = Common.replaceSpecialCharacters(site)
         sPattern = '<input type="hidden" name="(.+?)" value="(.*?)">'
         matches = re.compile(sPattern).findall(site)
         host="vidto"
@@ -294,7 +298,7 @@ def GetURLSource(url, referer = None, date = ''):
                     match[2] = link
                     break
             time.sleep(7)
-            site = readURL(url=link, data=matches)
+            site = Common.readURL(url=link, data=matches)
             match = re.compile("file_link = '(.+?)'").search(site)
             if match:
                 url = match.group(1)
@@ -303,31 +307,6 @@ def GetURLSource(url, referer = None, date = ''):
 
     else:
         return None, None
-
-
-def replaceSpecialCharacters(sString):
-    return sString.replace('\\/', '/').replace('&amp;', '&').replace('\xc9', 'E').replace('&#8211;', '-').replace(
-        '&#038;', '&').replace('&rsquo;', '\'').replace('\r', '').replace('\n', '').replace('\t', '').replace('&#039;',
-                                                                                                              "'")
-
-
-def readURL(url, referer = None, headers = {}, data=None, raw=False):
-    try:
-        if data:
-            data = urllib.parse.urlencode(data).encode('utf-8')
-        request = urllib.request.Request(url=url, data=data, headers=headers)
-        if referer:
-            request.add_header('Referer', referer)
-        response = urllib.request.urlopen(request)
-        if response:
-            if raw:
-                return response
-            return response.read().decode('utf-8')
-    except Exception as e:
-        print(e)
-    if raw:
-        return None
-    return ""
 
 
 def getDate(text):
