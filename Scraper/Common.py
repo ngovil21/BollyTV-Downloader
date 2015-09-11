@@ -10,7 +10,7 @@ def print_progress(count, blockSize, totalSize):
     print("\r%2.0f%% Done" % percent, end="")
 
 
-def download_episode_part(episode_link, title, path, part=0, remove_spaces=False):
+def download_episode_part(episode_link, title, path, part = 0, remove_spaces = False):
     try:
         if part > 0:
             episode_title = title + " Part " + "%02d" % part
@@ -43,14 +43,15 @@ def replaceSpecialCharacters(sString):
         '&#038;', '&').replace('&rsquo;', '\'').replace('\r', '').replace('\n', '').replace('\t', '').replace('&#039;',
                                                                                                               "'")
 
-def readURL(url, referer = None, headers = {}, data=None, raw=False):
+
+def readURL(url, referer = None, headers = {}, data = None, raw = False):
     try:
         if data:
             data = parse.urlencode(data).encode('utf-8')
         url_request = request.Request(url=url, data=data, headers=headers)
         if referer:
             url_request.add_header('Referer', referer)
-        response = url_request.urlopen(request)
+        response = request.urlopen(url_request)
         if response:
             if raw:
                 return response
@@ -61,7 +62,8 @@ def readURL(url, referer = None, headers = {}, data=None, raw=False):
         return None
     return ""
 
-def get_first_element(parent,tag):
+
+def get_first_element(parent, tag):
     match = parent.getElementsByTagName(tag)
     if match:
         return match[0]

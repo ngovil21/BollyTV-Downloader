@@ -49,7 +49,7 @@ def Download(channel, shows, hd=False):
             for e in channel_shows:
                 partial = fuzz.partial_ratio(e.text.lower(), show.lower())
                 if partial >= FUZZY_MATCH:
-                    season_match = re.compile('Season[ ]?[/d]+').search(e.text.lower())
+                    season_match = re.compile('season[ ]?([\d]+?)').search(e.text.lower())
                     if season_match:
                         season = season_match.group(1)
                     print(show + ": " + str(partial))
@@ -82,10 +82,15 @@ def Download(channel, shows, hd=False):
                         ".//*[@id='left-inside']/div/center/p//span[not(contains(text(),'HD'))]")
                     episode_tree = []
                     date = ""
+                    title = ""
                     if link_text:
                         date = getDate(link_text)
                     if not date and post_date:
                         date = getDate(post_date[0])
+                    if link_text:
+                        title = link_text.replace("Watch Online", "").replace("  ", " ").strip() + " (" + date + ")"
+                    else:
+                        title = show + " - " + date
                     index = 0
                     for e in episode_tree_hd:
                         if 'Single Link' in e.text:   #Prioritize Single Links
@@ -99,10 +104,9 @@ def Download(channel, shows, hd=False):
                     # create download path
                     if not season:
                         season = "1"
-                    path = os.path.join(BASE_PATH, show, "Season "+season)
+                    path = os.path.join(BASE_PATH, show, "Season " + season)
                     if not os.path.isdir(path):
                         os.makedirs(path)
-                    title = show + " - " + date
                     print(title)
                     path = os.path.join(path, title)
                     if os.path.exists(path):
