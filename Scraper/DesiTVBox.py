@@ -109,7 +109,7 @@ def Download(channel, shows, hd=False):
                     print(title)
                     path_old = os.path.join(path, show + " - " + date)
                     path = os.path.join(path, title)
-                    if os.path.exists(path) or os.path.exists(path_old):
+                    if os.path.exists(path):
                         if len(os.listdir(path)) > 0:
                             print("Non-empty folder exists. Assume already downloaded")
                             continue
