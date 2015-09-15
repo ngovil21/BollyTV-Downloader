@@ -181,10 +181,14 @@ def setParameters(base_path, maximum_episodes, remove_spaces):
     MAX_EPISODES = maximum_episodes
     REMOVE_SPACES = remove_spaces
 
+
 def GetURLSource(url, referer = None, date = ''):
-    # response = Common.readURL(url, referer=referer, raw=True)
+    # response = Common.readURL(url, referer=referer, raw=False)
+    # #print(response.read())
+    # element = html.document_fromstring(response)
     try:
-        element = html.parse(url)
+        element = Common.element_from_url(url, referer=referer)
+        #element = html.parse(url)
         while True:
             attr = element.xpath("//meta[translate(@http-equiv, 'REFSH', 'refsh') = 'refresh']/@content")
             if not attr:
@@ -195,9 +199,11 @@ def GetURLSource(url, referer = None, date = ''):
                 url = text[4:]
                 if not url.startswith('http'):
                     url = urllib.parse.urljoin(ref, url)
-            element = html.parse(url)
-        string = html.tostring(element).decode('utf-8')
-    except:
+            element = Common.element_from_url(url, referer)
+        string = html.tostring(element, encoding='utf-8').decode('utf-8')
+        # print(string)
+    except Exception as e:
+        print(e)
         return None, None
     # print(string)
     host = ''

@@ -43,9 +43,13 @@ def replaceSpecialCharacters(sString):
         '&#038;', '&').replace('&rsquo;', '\'').replace('\r', '').replace('\n', '').replace('\t', '').replace('&#039;',
                                                                                                               "'")
 
+def remove_non_ascii(S):
+    stripped = (c for c in S if 0 < ord(c) < 127)
+    return ''.join(stripped)
 
 def readURL(url, referer = None, headers = {}, data = None, raw = False):
     try:
+        headers['User-Agent'] = 'Mozilla/5.0'
         if data:
             data = parse.urlencode(data).encode('utf-8')
         url_request = request.Request(url=url, data=data, headers=headers)
@@ -55,7 +59,7 @@ def readURL(url, referer = None, headers = {}, data = None, raw = False):
         if response:
             if raw:
                 return response
-            return response.read().decode('utf-8')
+            return response.read().decode('utf-8','ignore')
     except Exception as e:
         print(e)
     if raw:
@@ -68,3 +72,7 @@ def get_first_element(parent, tag):
     if match:
         return match[0]
     return None
+
+def element_from_url(url,referer=None,headers={},data=None):
+    source = readURL(url,referer,headers,data,False)
+    return html.document_fromstring(source)
