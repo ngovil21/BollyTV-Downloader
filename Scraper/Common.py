@@ -25,6 +25,7 @@ def download_episode_part(episode_link, title, path, part=0, remove_spaces=False
         # retrieve file, store as temporary .part file
         (filename, headers) = request.urlretrieve(url=episode_link, filename=os.path.join(path, episode_title + ".part"),
                                                   reporthook=print_progress)
+        print()
         # try to get extension from information provided
         if 'mp4' in headers['Content-Type'] or 'mp4' in episode_link:
             ext = '.mp4'
