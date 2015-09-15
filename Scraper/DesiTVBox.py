@@ -32,7 +32,7 @@ def Download(channel, shows, hd=False):
     tree = source.xpath("//div[@id='left-inside']/div/table/tbody/tr/td/strong")
     for a in tree:
         partial = fuzz.partial_ratio(a.text.lower(), channel.lower())
-        if  partial < FUZZY_MATCH:
+        if partial < FUZZY_MATCH:
             continue
         print(channel + ": " + str(partial))
         channel_shows = a.xpath("./following-sibling::ul/li/a")
@@ -92,7 +92,7 @@ def Download(channel, shows, hd=False):
                         title = show + " - " + date
                     index = 0
                     for e in episode_tree_hd:
-                        if 'Single Link' in e.text:   #Prioritize Single Links
+                        if 'Single Link' in e.text:  # Prioritize Single Links
                             episode_tree.insert(index, e)
                             index += 1
                         else:
@@ -137,33 +137,39 @@ def Download(channel, shows, hd=False):
                                 break
                             print(title)
                             print(host + ": " + episode_link)
-                            try:
-                                if len(links) > 1:
-                                    episode_title = title + " Part " + "%02d" % int(i + 1)
-                                else:
-                                    episode_title = title
-                                if REMOVE_SPACES:
-                                    episode_title = episode_title.replace(" ", ".")
-                                    while episode_title.find("..") != -1:
-                                        episode_title = episode_title.replace("..", "")
-                                # retrieve file, store as temporary .part file
-                                (filename, headers) = urllib.request.urlretrieve(url=episode_link, filename=os.path.join(path, episode_title + ".part"), reporthook=Common.print_progress)
-                                # try to get extension from information provided
-                                if 'mp4' in headers['Content-Type'] or '.mp4' in episode_link:
-                                    ext = '.mp4'
-                                elif 'flv' in headers['Content-Type'] or '.flv' in episode_link:
-                                    ext = '.flv'
-                                elif 'avi' in headers['Content-Type'] or '.avi' in episode_link:
-                                    ext = '.avi'
-                                else:
-                                    raise Exception("Unknown File Type: " + headers['Content-Type'])
-                                # move file with extension
-                                shutil.move(filename, os.path.join(path, episode_title + ext))
-                                download_fail = False
-                            except Exception as e:
-                                print(e)
+                            if len(links) > 1:
+                                episode_title = title + " Part " + "%02d" % int(i + 1)
+                            else:
+                                episode_title = title
+
+                            if not Common.download_episode_part(episode_link, episode_title, path):
                                 download_fail = True
                                 break
+                            else:
+                                download_fail = False
+                                # try:
+                                #     if REMOVE_SPACES:
+                                #         episode_title = episode_title.replace(" ", ".")
+                                #         while episode_title.find("..") != -1:
+                                #             episode_title = episode_title.replace("..", "")
+                                #     # retrieve file, store as temporary .part file
+                                #     (filename, headers) = urllib.request.urlretrieve(url=episode_link, filename=os.path.join(path, episode_title + ".part"), reporthook=Common.print_progress)
+                                #     # try to get extension from information provided
+                                #     if 'mp4' in headers['Content-Type'] or '.mp4' in episode_link:
+                                #         ext = '.mp4'
+                                #     elif 'flv' in headers['Content-Type'] or '.flv' in episode_link:
+                                #         ext = '.flv'
+                                #     elif 'avi' in headers['Content-Type'] or '.avi' in episode_link:
+                                #         ext = '.avi'
+                                #     else:
+                                #         raise Exception("Unknown File Type: " + headers['Content-Type'])
+                                #     # move file with extension
+                                #     shutil.move(filename, os.path.join(path, episode_title + ext))
+                                #     download_fail = False
+                                # except Exception as e:
+                                #     print(e)
+                                #     download_fail = True
+                                #     break
                         # download fail not triggered, break out of links loop
                         if not download_fail:
                             print("Download success!")
@@ -175,6 +181,7 @@ def Download(channel, shows, hd=False):
                         if os.path.exists(path):
                             shutil.rmtree(path)
 
+
 def setParameters(base_path, maximum_episodes, remove_spaces):
     global BASE_PATH, MAX_EPISODES, REMOVE_SPACES
     BASE_PATH = base_path
@@ -182,20 +189,20 @@ def setParameters(base_path, maximum_episodes, remove_spaces):
     REMOVE_SPACES = remove_spaces
 
 
-def GetURLSource(url, referer = None, date = ''):
+def GetURLSource(url, referer=None, date=''):
     # response = Common.readURL(url, referer=referer, raw=False)
     # #print(response.read())
     # element = html.document_fromstring(response)
     try:
         element = Common.element_from_url(url, referer=referer)
-        #element = html.parse(url)
+        # element = html.parse(url)
         while True:
             attr = element.xpath("//meta[translate(@http-equiv, 'REFSH', 'refsh') = 'refresh']/@content")
             if not attr:
                 break
             wait, text = attr[0].split(";")
             if text.lower().startswith("url="):
-                ref=url
+                ref = url
                 url = text[4:]
                 if not url.startswith('http'):
                     url = urllib.parse.urljoin(ref, url)
@@ -209,11 +216,11 @@ def GetURLSource(url, referer = None, date = ''):
     host = ''
     if element.xpath("//iframe[contains(@src,'dailymotion')]"):
         link = element.xpath("//iframe[contains(@src,'dailymotion')]/@src")[0]
-        link = Common.replaceSpecialCharacters(link)
+        link = Common.replace_special_characters(link)
         site = Common.readURL(link)
         if not site:
             return None, None
-        site = Common.replaceSpecialCharacters(site)
+        site = Common.replace_special_characters(site)
         patterns = ['"stream_h264_hd1080_url":"(.+?)"', '"stream_h264_hd_url":"(.+?)"', '"stream_h264_hq_url":"(.+?)"',
                     '"stream_h264_url":"(.+?)"', '"stream_h264_ld_url":"(.+?)"']
         for pat in patterns:
@@ -292,7 +299,7 @@ def GetURLSource(url, referer = None, date = ''):
             key = re.compile('key:[ ]?"([^"]+)"').findall(site)[0]
             # Log(key)
             api_call = 'http://www.cloudy.ec/api/player.api.php?user=undefined&codes=1&file=%s&pass=undefined&key=%s' % (
-            file_id, key)
+                file_id, key)
             site = Common.readURL(api_call)
             content = re.compile('url=([^&]+)&').findall(site)
             if content:
@@ -301,13 +308,13 @@ def GetURLSource(url, referer = None, date = ''):
         return None, None
     elif element.xpath("//iframe[contains(@src,'vidto')]"):
         link = element.xpath("//iframe[contains(@src,'vidto')]/@src")[0]
-        link = link.replace('embed-','')
-        link = re.sub(r'\-.*\.html',r'',link)
+        link = link.replace('embed-', '')
+        link = re.sub(r'\-.*\.html', r'', link)
         site = Common.readURL(link)
-        site = Common.replaceSpecialCharacters(site)
+        site = Common.replace_special_characters(site)
         sPattern = '<input type="hidden" name="(.+?)" value="(.*?)">'
         matches = re.compile(sPattern).findall(site)
-        host="vidto"
+        host = "vidto"
         if matches:
             for match in matches:
                 if match[1] == 'referer':
@@ -327,8 +334,8 @@ def GetURLSource(url, referer = None, date = ''):
 
 def getDate(text):
     months = (
-    "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November",
-    "December")
+        "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November",
+        "December")
     match = re.compile("([\d]+)(st|nd|rd|th) ([\w]+) +([\d]+)").search(text)
     if match:
         day = match.group(1)
@@ -341,6 +348,7 @@ def getDate(text):
         text = "%02d-%02d-%s" % (month, int(day), year)
     return text
 
+
 def getChannels():
     source = html.parse(URL_HOME)
     tree = source.xpath("//div[@id='left-inside']/div/table/tbody/tr/td/strong")
@@ -350,6 +358,7 @@ def getChannels():
         channels.append(b.text)
 
     return channels
+
 
 def getShows(channel):
     shows = []
@@ -362,5 +371,3 @@ def getShows(channel):
                 shows.append(show.text)
 
     return shows
-
-

@@ -4,13 +4,15 @@ import os
 
 from lxml import html
 
+MINIMUM_FILE_SIZE = 5000000
+
 
 def print_progress(count, blockSize, totalSize):
     percent = int(count * blockSize * 100 / totalSize)
     print("\r%2.0f%% Done" % percent, end="")
 
 
-def download_episode_part(episode_link, title, path, part = 0, remove_spaces = False):
+def download_episode_part(episode_link, title, path, part=0, remove_spaces=False):
     try:
         if part > 0:
             episode_title = title + " Part " + "%02d" % part
@@ -30,24 +32,27 @@ def download_episode_part(episode_link, title, path, part = 0, remove_spaces = F
             ext = '.flv'
         else:
             raise Exception("Unknown File Type: " + headers['Content-Type'])
+        if not check_minimum_file_size(filename):
+            raise Exception("File too small! (" + str(os.path.getsize(filename)) + " bytes)")
         # move file with extension
         shutil.move(filename, os.path.join(path, episode_title + ext))
-        return False
+        return True
     except Exception as e:
         print(e)
-        return True
+        return False
 
 
-def replaceSpecialCharacters(sString):
+def replace_special_characters(sString):
     return sString.replace('\\/', '/').replace('&amp;', '&').replace('\xc9', 'E').replace('&#8211;', '-').replace(
-        '&#038;', '&').replace('&rsquo;', '\'').replace('\r', '').replace('\n', '').replace('\t', '').replace('&#039;',
-                                                                                                              "'")
+        '&#038;', '&').replace('&rsquo;', '\'').replace('\r', '').replace('\n', '').replace('\t', '').replace('&#039;', "'")
+
 
 def remove_non_ascii(S):
     stripped = (c for c in S if 0 < ord(c) < 127)
     return ''.join(stripped)
 
-def readURL(url, referer = None, headers = {}, data = None, raw = False):
+
+def readURL(url, referer=None, headers={}, data=None, raw=False):
     try:
         headers['User-Agent'] = 'Mozilla/5.0'
         if data:
@@ -59,7 +64,7 @@ def readURL(url, referer = None, headers = {}, data = None, raw = False):
         if response:
             if raw:
                 return response
-            return response.read().decode('utf-8','ignore')
+            return response.read().decode('utf-8', 'ignore')
     except Exception as e:
         print(e)
     if raw:
@@ -73,6 +78,12 @@ def get_first_element(parent, tag):
         return match[0]
     return None
 
-def element_from_url(url,referer=None,headers={},data=None):
-    source = readURL(url,referer,headers,data,False)
+
+def element_from_url(url, referer=None, headers={}, data=None):
+    source = readURL(url, referer, headers, data, False)
     return html.document_fromstring(source)
+
+
+def check_minimum_file_size(file):
+    # print(file + " is " + str(os.path.getsize(file)) + " bytes")
+    return os.path.getsize(file) > MINIMUM_FILE_SIZE
