@@ -5,7 +5,7 @@ import os
 import re
 import sys
 
-from Scraper import BollyStop, DesiTVBox
+from Scrapers import BollyStop, DesiTVBox
 
 BASE_PATH = '~/Downloads/BollyTV'
 MAX_EPISODES = 0

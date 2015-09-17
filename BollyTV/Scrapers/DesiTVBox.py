@@ -2,18 +2,17 @@ from fuzzywuzzy import fuzz
 
 __author__ = 'Nikhil'
 
-import datetime
 import json
 import os
 import shutil
 import re
-import time
 import urllib.request
 import urllib.parse
 import time
 
-from Scraper import Common
+import Common
 import lxml.html as html
+
 
 HOST_NAME = "DesiTVBox"
 URL_HOME = "http://www.desitvbox.me/"
@@ -35,6 +34,7 @@ def Download(channel, shows, hd=False):
         if partial < FUZZY_MATCH:
             continue
         print(channel + ": " + str(partial))
+        channel_shows = a.xpath("./following-sibling::ul/li/a")
         channel_shows = a.xpath("./following-sibling::ul/li/a")
         # get shows for channel
         for show in shows:
@@ -131,7 +131,8 @@ def Download(channel, shows, hd=False):
                             if not href.startswith("http:"):
                                 href = URL_HOME + href
                             # get direct url from video host
-                            episode_link, host = GetURLSource(href, episode_links[0], date)
+                            # episode_link, host = GetURLSource(href, episode_links[0], date)
+                            episode_link, host = Common.get_url_source(href, episode_links[0], date)
                             if not episode_link:
                                 download_fail = True
                                 break
@@ -190,9 +191,6 @@ def setParameters(base_path, maximum_episodes, remove_spaces):
 
 
 def GetURLSource(url, referer=None, date=''):
-    # response = Common.readURL(url, referer=referer, raw=False)
-    # #print(response.read())
-    # element = html.document_fromstring(response)
     try:
         element = Common.element_from_url(url, referer=referer)
         # element = html.parse(url)
@@ -217,7 +215,7 @@ def GetURLSource(url, referer=None, date=''):
     if element.xpath("//iframe[contains(@src,'dailymotion')]"):
         link = element.xpath("//iframe[contains(@src,'dailymotion')]/@src")[0]
         link = Common.replace_special_characters(link)
-        site = Common.readURL(link)
+        site = Common.read_url(link)
         if not site:
             return None, None
         site = Common.replace_special_characters(site)
@@ -253,7 +251,7 @@ def GetURLSource(url, referer=None, date=''):
                 config_url = element.xpath("//script/@data-config")[0].lstrip("//")
                 if not config_url.startswith("http://"):
                     config_url = "http://" + config_url
-                site = Common.readURL(config_url)
+                site = Common.read_url(config_url)
                 if not site:
                     return None, None
                 json_obj = json.loads(site)
@@ -262,7 +260,7 @@ def GetURLSource(url, referer=None, date=''):
                 # Log(json.dumps(json_obj,indent=4))
                 manifest = json_obj['content']['media']['f4m']
                 # Log("Manifest: " + str(manifest))
-                content = Common.readURL(manifest, headers={'Accept': 'text/html'}).replace('\n', '').replace('  ', '')
+                content = Common.read_url(manifest, headers={'Accept': 'text/html'}).replace('\n', '').replace('  ', '')
                 # Log("Content: " + str(content))
                 baseurl = re.search(r'>http(.*?)<', content)  # <([baseURL]+)\b[^>]*>(.*?)<\/baseURL>
                 # Log ('BaseURL: ' + baseurl.group())
@@ -279,7 +277,7 @@ def GetURLSource(url, referer=None, date=''):
                 return None, None
     elif element.xpath("//iframe[contains(@src,'vodlocker')]"):
         url = element.xpath("//iframe[contains(@src,'vodlocker')]/@src")[0]
-        source = Common.readURL(url)
+        source = Common.read_url(url)
         source = source.replace('|', '/')
         file = re.compile('file: "([^"]+)"').findall(source)
         host = 'vodlocker'
@@ -290,7 +288,7 @@ def GetURLSource(url, referer=None, date=''):
             return None, None
     elif element.xpath("//iframe[contains(@src,'cloudy')]"):
         link = element.xpath("//iframe[contains(@src,'cloudy')]/@src")[0]
-        site = Common.readURL(link)
+        site = Common.read_url(link)
         file = re.compile('file:[ ]?"([^"]+)"').findall(site)
         host = 'cloudy'
         if file:
@@ -300,7 +298,7 @@ def GetURLSource(url, referer=None, date=''):
             # Log(key)
             api_call = 'http://www.cloudy.ec/api/player.api.php?user=undefined&codes=1&file=%s&pass=undefined&key=%s' % (
                 file_id, key)
-            site = Common.readURL(api_call)
+            site = Common.read_url(api_call)
             content = re.compile('url=([^&]+)&').findall(site)
             if content:
                 url = urllib.request.unquote(content[0])
@@ -310,7 +308,7 @@ def GetURLSource(url, referer=None, date=''):
         link = element.xpath("//iframe[contains(@src,'vidto')]/@src")[0]
         link = link.replace('embed-', '')
         link = re.sub(r'\-.*\.html', r'', link)
-        site = Common.readURL(link)
+        site = Common.read_url(link)
         site = Common.replace_special_characters(site)
         sPattern = '<input type="hidden" name="(.+?)" value="(.*?)">'
         matches = re.compile(sPattern).findall(site)
@@ -321,7 +319,7 @@ def GetURLSource(url, referer=None, date=''):
                     match[2] = link
                     break
             time.sleep(7)
-            site = Common.readURL(url=link, data=matches)
+            site = Common.read_url(url=link, data=matches)
             match = re.compile("file_link = '(.+?)'").search(site)
             if match:
                 url = match.group(1)
