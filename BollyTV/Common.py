@@ -177,8 +177,8 @@ def get_url_source(url, referer=None, date=None):
         else:
             return None, None
     elif element.xpath("//iframe[contains(@src,'idowatch')]"):
-        link = element.xpath("//iframe[contains(@src,'idowatch')]")
-        url = VidTo.get_download_link(link)
+        link = element.xpath("//iframe[contains(@src,'idowatch')]")[0]
+        url = iDoWatch.get_download_link(link)
         host = 'idowatch'
         if url:
             return url, host
