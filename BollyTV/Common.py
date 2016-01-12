@@ -8,7 +8,7 @@ import sys
 
 from lxml import html
 
-from Hosters import Cloudy, DailyMotion, LetWatch, PlayWire, VidTo, VodLocker, iDoWatch, Playu
+from Hosters import Cloudy, DailyMotion, LetWatch, PlayWire, VidTo, VodLocker, iDoWatch, Playu, WatchVideo
 
 MINIMUM_FILE_SIZE = 5000000
 
@@ -188,6 +188,14 @@ def get_url_source(url, referer=None, date=None):
         link = element.xpath("//iframe[contains(@src,'playu.net')]/@src")[0]
         url = Playu.get_download_link(link)
         host = 'playu'
+        if url:
+            return url, host
+        else:
+            return None, None
+    elif element.xpath("//iframe[contains(@src,'watchvideo2')]"):
+        link = element.xpath("//iframe[contains(@src,'watchvideo2')]/@src")[0]
+        url = WatchVideo.get_download_link(link)
+        host = 'watchvideo'
         if url:
             return url, host
         else:
