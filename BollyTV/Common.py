@@ -1,17 +1,24 @@
+from __future__ import print_function
+
 from urllib import request, parse
 import shutil
 import os
+import sys
+
 
 from lxml import html
 
-from Hosters import Cloudy, DailyMotion, LetWatch, PlayWire, VidTo, VodLocker
+from Hosters import Cloudy, DailyMotion, LetWatch, PlayWire, VidTo, VodLocker, iDoWatch
 
 MINIMUM_FILE_SIZE = 5000000
 
 
 def print_progress(count, blockSize, totalSize):
     percent = int(count * blockSize * 100 / totalSize)
-    print("\r%2.0f%% Done" % percent, end="")
+    if sys.version < '3':
+        pass
+    else:
+        print("\r%2.0f%% Done" % percent, end="")
 
 
 def download_episode_part(episode_link, title, path, part=0, remove_spaces=False):
@@ -165,6 +172,14 @@ def get_url_source(url, referer=None, date=None):
         link = element.xpath("//iframe[contains(@src,'vidto')]/@src")[0]
         url = VidTo.get_download_link(link)
         host = 'vidto'
+        if url:
+            return url, host
+        else:
+            return None, None
+    elif element.xpath("//iframe[contrains(@src,'idowatch')]"):
+        link = element.xpath("//iframe[contrains(@src,'idowatch')]")
+        url = VidTo.get_download_link(link)
+        host = 'idowatch'
         if url:
             return url, host
         else:
