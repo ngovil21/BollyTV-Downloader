@@ -10,7 +10,7 @@ import urllib.request
 import urllib.parse
 import time
 
-import Common
+from BollyTV import Common
 import lxml.html as html
 
 

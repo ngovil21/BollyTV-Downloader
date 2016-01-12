@@ -1,6 +1,6 @@
 __author__ = 'Nikhil'
 
-import BollyTV.Util.Common as Common
+from BollyTV import Common
 import re
 import urllib.request
 
