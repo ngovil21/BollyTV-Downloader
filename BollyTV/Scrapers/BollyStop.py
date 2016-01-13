@@ -18,9 +18,11 @@ MAX_EPISODES = 0
 REMOVE_SPACES = True
 FUZZY_MATCH = 90
 
+
 def print_progress(count, blockSize, totalSize):
     percent = int(count * blockSize * 100 / totalSize)
     print("\r%2.0f%% Done" % percent, end="")
+
 
 def Download(channel, shows, hd=False):
     # get channel
@@ -54,10 +56,10 @@ def Download(channel, shows, hd=False):
                 if not episodes_tree:
                     continue
                 # get a maximum number of episodes
-                max = len(episodes_tree)
-                if max > MAX_EPISODES > 0:
-                    max = MAX_EPISODES
-                for branch in range(0, max):
+                mx = len(episodes_tree)
+                if mx > MAX_EPISODES > 0:
+                    mx = MAX_EPISODES
+                for branch in range(0, mx):
                     # get episode
                     link = episodes_tree[branch].xpath("./@href")
                     if not link:
@@ -122,7 +124,8 @@ def Download(channel, shows, hd=False):
                                     episode_title.replace(" ", ".")
                                     while episode_title.find("..") != -1:
                                         episode_title.replace("..", "")
-                                (filename, headers) = urllib.request.urlretrieve(url=link, filename=os.path.join(path, episode_title + ".part"),reporthook=print_progress)
+                                (filename, headers) = urllib.request.urlretrieve(url=link, filename=os.path.join(path, episode_title + ".part"),
+                                                                                 reporthook=print_progress)
                                 # try to get extension from information provided
                                 if 'mp4' in headers['Content-Type'] or 'mp4' in link:
                                     ext = '.mp4'
@@ -148,13 +151,15 @@ def Download(channel, shows, hd=False):
                         if os.path.exists(path):
                             shutil.rmtree(path)
 
+
 def setParameters(base_path, maximum_episodes, remove_spaces):
     global BASE_PATH, MAX_EPISODES, REMOVE_SPACES
     BASE_PATH = base_path
     MAX_EPISODES = maximum_episodes
     REMOVE_SPACES = remove_spaces
 
-def GetURLSource(url, referer, date = ''):
+
+def GetURLSource(url, referer, date=''):
     response = readURL(url, referer=referer, raw=True)
     if not response:
         return None, None
@@ -256,7 +261,7 @@ def replaceSpecialCharacters(sString):
                                                                                                               "'")
 
 
-def readURL(url, referer = None, headers = {}, raw = False):
+def readURL(url, referer=None, headers={}, raw=False):
     try:
         request = urllib.request.Request(url=url, headers=headers)
         if referer:
@@ -289,6 +294,7 @@ def getDate(text):
         text = "%02d-%02d-%s" % (month, int(day), year)
     return text
 
+
 def getChannels(links=False):
     source = html.parse(URL_HOME + "hindi-serial.html")
     tree = source.xpath("//div[@id='content']/div/div[@class='channel_wrapper']/h3/a")
@@ -302,6 +308,7 @@ def getChannels(links=False):
     else:
         return channels
 
+
 def getShows(channel):
     shows = []
     channels, links = getChannels(True)
@@ -312,4 +319,3 @@ def getShows(channel):
             for show in channel_shows:
                 shows.append(show)
     return shows
-

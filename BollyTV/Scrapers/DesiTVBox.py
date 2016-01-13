@@ -13,7 +13,6 @@ import time
 from BollyTV import Common
 import lxml.html as html
 
-
 HOST_NAME = "DesiTVBox"
 URL_HOME = "http://www.desitvbox.me/"
 
@@ -64,10 +63,10 @@ def Download(channel, shows, hd=False):
                 if not episodes_tree:
                     continue
                 # get a maximum number of episodes
-                max = len(episodes_tree)
-                if max > MAX_EPISODES > 0:
-                    max = MAX_EPISODES
-                for branch in range(0, max):
+                mx = len(episodes_tree)
+                if mx > MAX_EPISODES > 0:
+                    mx = MAX_EPISODES
+                for branch in range(0, mx):
                     # get episode
                     episode_links = episodes_tree[branch].xpath("./@href")
                     link_text = episodes_tree[branch].text
@@ -81,7 +80,7 @@ def Download(channel, shows, hd=False):
                         ".//*[@id='left-inside']/div/center/p//span[not(contains(text(),'HD'))]")
                     episode_tree = []
                     date = ""
-                    #title = ""
+                    # title = ""
                     if link_text:
                         date = getDate(link_text)
                     if not date and post_date:
@@ -113,7 +112,7 @@ def Download(channel, shows, hd=False):
                         if len(os.listdir(path)) > 0:
                             print("Non-empty folder exists. Assume already downloaded")
                             continue
-                    #Search all previous folder for date in name, means already downloaded
+                    # Search all previous folder for date in name, means already downloaded
                     # date_exists = False
                     # for folder in os.listdir(season_path):
                     #     print(folder)
@@ -161,7 +160,7 @@ def Download(channel, shows, hd=False):
                         # download failed, check next set of links
                         else:
                             print("Download failed!")
-                    #if all links failed, then delete the folder
+                    # if all links failed, then delete the folder
                     if download_fail:
                         if os.path.exists(path):
                             shutil.rmtree(path)

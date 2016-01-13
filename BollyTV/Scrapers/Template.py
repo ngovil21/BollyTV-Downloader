@@ -1,5 +1,4 @@
-
-#This is a template file for Scrapers and contains the variables and methods that the Scraper must include
+# This is a template file for Scrapers and contains the variables and methods that the Scraper must include
 
 HOST_NAME = ""
 URL_HOME = ""
@@ -20,8 +19,10 @@ def setParameters(base_path, maximum_episodes, remove_spaces):
     MAX_EPISODES = maximum_episodes
     REMOVE_SPACES = remove_spaces
 
+
 def getChannels():
     pass
+
 
 def getShows(channel):
     pass

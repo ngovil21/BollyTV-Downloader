@@ -62,7 +62,7 @@ class Packer:
 
     def _replacestrings(self, source):
         """Strip string lookup table (list) and replace values in source."""
-        match = re.search(r'var *(_\w+)\=\["(.*?)"\];', source, re.DOTALL)
+        match = re.search(r'var *(_\w+)=\["(.*?)"\];', source, re.DOTALL)
 
         if match:
             varname, strings = match.groups()

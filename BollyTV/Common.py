@@ -5,10 +5,9 @@ import shutil
 import os
 import sys
 
-
 from lxml import html
 
-from Hosters import Cloudy, DailyMotion, LetWatch, PlayWire, VidTo, VodLocker, iDoWatch, Playu, WatchVideo
+from Hosters import Cloudy, DailyMotion, PlayWire, VidTo, VodLocker, iDoWatch, Playu, WatchVideo
 
 MINIMUM_FILE_SIZE = 5000000
 

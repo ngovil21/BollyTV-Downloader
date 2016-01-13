@@ -1,8 +1,8 @@
 __author__ = 'Nikhil'
 
-from BollyTV import Common
 import re
-import urllib.request
+
+from BollyTV import Common
 
 
 def get_download_link(url):

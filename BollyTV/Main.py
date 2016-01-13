@@ -5,9 +5,9 @@ import os
 import re
 import sys
 
-
 import ssl
-ssl._create_default_https_context = ssl._create_unverified_context      #fix for https certificate_verify_failed
+
+ssl._create_default_https_context = ssl._create_unverified_context  # fix for https certificate_verify_failed
 from Scrapers import BollyStop, DesiTVBox
 
 BASE_PATH = '~/Downloads/BollyTV'
@@ -26,6 +26,7 @@ CONFIG_VERSION = 1.0
 
 Scrapers = [BollyStop, DesiTVBox]
 
+
 def dumpSettings(output):
     settings = OrderedDict([
         ('BasePath', BASE_PATH),
@@ -41,6 +42,7 @@ def dumpSettings(output):
 def remove_non_ascii(text):
     return ''.join([i for i in text if ord(i) < 128])
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--dump", "-dump", help="Dump the settings to a configuration file and exit", nargs='?',
                     const=os.path.join(sys.path[0], "Settings.cfg"), default=None)
@@ -49,14 +51,14 @@ parser.add_argument("--config", "-config", "--load", "-load",
 parser.add_argument("--update_config", "-update_config", action="store_true",
                     help="Update the config file with new settings from the script and exit")
 
-parser.add_argument("--add","-add","--addshow","-addshow", action="store_true", help="Add a new show")
-parser.add_argument("--remove","-remove","--removeshow","-removeshow", action="store_true", help="Remove an existing show")
+parser.add_argument("--add", "-add", "--addshow", "-addshow", action="store_true", help="Add a new show")
+parser.add_argument("--remove", "-remove", "--removeshow", "-removeshow", action="store_true", help="Remove an existing show")
 
 args = parser.parse_args()
 
 if args.config:
     Config = args.config
-#If no config file is provided, check if there is a config file in first the user directory, or the current directory.
+# If no config file is provided, check if there is a config file in first the user directory, or the current directory.
 if Config == "":
     if os.path.isfile(os.path.join(os.path.expanduser("~"), ".BollyTV")):
         Config = os.path.join(os.path.expanduser("~"), ".BollyTV")
@@ -66,7 +68,7 @@ if Config == "":
         Config = os.path.join(sys.path[0], "Settings.cfg")
 
 if args.dump:
-    #Output settings to a json config file and exit
+    # Output settings to a json config file and exit
     print("Saving settings to " + args.dump)
     dumpSettings(args.dump)
     exit()
@@ -74,7 +76,7 @@ if args.dump:
 if Config and os.path.isfile(Config):
     print("Loading config file: " + Config)
     with open(Config, 'r') as infile:
-        opt_string = infile.read().replace('\n', '')    #read in file removing breaks
+        opt_string = infile.read().replace('\n', '')  # read in file removing breaks
         # Escape odd number of backslashes (Windows paths are a problem)
         opt_string = re.sub(r'(?x)(?<!\\)\\(?=(?:\\\\)*(?!\\))', r'\\\\', opt_string)
         options = json.loads(opt_string)
@@ -93,7 +95,7 @@ if BASE_PATH.startswith('~'):
     BASE_PATH = os.path.expanduser(BASE_PATH)
 
 if args.add:
-    while(True):
+    while True:
         print("Adding a new show!")
         print("")
         print("Which scraper would you like to use?")
@@ -106,13 +108,13 @@ if args.add:
             selection = int(selection)
             if selection == 0:
                 sys.exit(0)
-            elif selection>0 and selection <= len(Scrapers):
-                host = Scrapers[selection-1]
+            elif 0 < selection <= len(Scrapers):
+                host = Scrapers[selection - 1]
                 print("You have selected: " + host.HOST_NAME)
                 print("")
                 print("The available channels for this scraper are: ")
                 channels = host.getChannels()
-                index=1
+                index = 1
                 for channel in channels:
                     print(str(index) + ". " + channel)
                     index += 1
@@ -122,21 +124,21 @@ if args.add:
                     if selection == 0:
                         sys.exit(0)
                     elif 0 < selection <= len(channels):
-                        channel = channels[selection-1]
+                        channel = channels[selection - 1]
                         print("You have selected " + channel + ".")
                         print("The available shows on this channel are:")
                         shows = host.getShows(channel)
-                        index=1
+                        index = 1
                         for show in shows:
                             print(str(index) + ". " + remove_non_ascii(show))
-                            index+=1
+                            index += 1
                         selection = input("Enter the number for the show (0 to exit): ")
                         if selection.isdigit():
                             selection = int(selection)
                             if selection == 0:
                                 sys.exit(0)
                             elif 0 < selection <= len(shows):
-                                show = shows[selection-1]
+                                show = shows[selection - 1]
                                 print("You have selected the show " + remove_non_ascii(show))
                                 print("This is your current selection:")
                                 print(remove_non_ascii(host.HOST_NAME + " - " + channel + " - " + show))
@@ -199,14 +201,13 @@ for host in Downloads:
             print("Downloading from " + BollyStop.HOST_NAME)
             for channel in channel_dict:
                 scraper.Download(channel, channel_dict[channel])
-    # if host == BollyStop.HOST_NAME:
-    #     BollyStop.setParameters(BASE_PATH, MAX_EPISODES, REMOVE_SPACES)
-    #     print("Downloading from " + BollyStop.HOST_NAME)
-    #     for channel in channel_dict:
-    #         BollyStop.Download(channel, channel_dict[channel])
-    # elif host == DesiTVBox.HOST_NAME:
-    #     DesiTVBox.setParameters(BASE_PATH, MAX_EPISODES, REMOVE_SPACES)
-    #     print("Downloading from " + DesiTVBox.HOST_NAME)
-    #     for channel in channel_dict:
-    #         DesiTVBox.Download(channel, channel_dict[channel])
-
+                # if host == BollyStop.HOST_NAME:
+                #     BollyStop.setParameters(BASE_PATH, MAX_EPISODES, REMOVE_SPACES)
+                #     print("Downloading from " + BollyStop.HOST_NAME)
+                #     for channel in channel_dict:
+                #         BollyStop.Download(channel, channel_dict[channel])
+                # elif host == DesiTVBox.HOST_NAME:
+                #     DesiTVBox.setParameters(BASE_PATH, MAX_EPISODES, REMOVE_SPACES)
+                #     print("Downloading from " + DesiTVBox.HOST_NAME)
+                #     for channel in channel_dict:
+                #         DesiTVBox.Download(channel, channel_dict[channel])
