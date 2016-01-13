@@ -114,16 +114,17 @@ def Download(channel, shows, hd=False):
                             print("Non-empty folder exists. Assume already downloaded")
                             continue
                     #Search all previous folder for date in name, means already downloaded
-                    date_exits = False
+                    date_exists = False
                     for folder in os.listdir(season_path):
                         print(folder)
                         if date in folder and len(os.listdir(os.path.join(season_path, folder))) > 0:
                             print(folder + " already exists.")
-                            date_exits = True
+                            date_exists = True
                             break
-                    if date_exits:
+                    if date_exists:
                         continue
-                    os.makedirs(path)
+                    else:
+                        os.makedirs(path)
                     # download episode, get video hosts
                     download_fail = False
                     for item in episode_tree:
