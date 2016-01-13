@@ -81,15 +81,16 @@ def Download(channel, shows, hd=False):
                         ".//*[@id='left-inside']/div/center/p//span[not(contains(text(),'HD'))]")
                     episode_tree = []
                     date = ""
-                    title = ""
+                    #title = ""
                     if link_text:
                         date = getDate(link_text)
                     if not date and post_date:
                         date = getDate(post_date[0])
+                    ep_title = ""
                     if link_text:
-                        title = link_text.replace("Watch Online", "").replace("  ", " ").strip() + " (" + date + ")"
-                    else:
-                        title = show + " - " + date
+                        ep_title = link_text.replace("Watch Online", "").replace(show, "").replace("  ", " ").strip()
+                    # else:
+                    title = show + " - " + date + " - " + ep_title
                     index = 0
                     for e in episode_tree_hd:
                         if 'Single Link' in e.text:  # Prioritize Single Links
@@ -148,36 +149,14 @@ def Download(channel, shows, hd=False):
                                 break
                             else:
                                 download_fail = False
-                                # try:
-                                #     if REMOVE_SPACES:
-                                #         episode_title = episode_title.replace(" ", ".")
-                                #         while episode_title.find("..") != -1:
-                                #             episode_title = episode_title.replace("..", "")
-                                #     # retrieve file, store as temporary .part file
-                                #     (filename, headers) = urllib.request.urlretrieve(url=episode_link, filename=os.path.join(path, episode_title + ".part"), reporthook=Common.print_progress)
-                                #     # try to get extension from information provided
-                                #     if 'mp4' in headers['Content-Type'] or '.mp4' in episode_link:
-                                #         ext = '.mp4'
-                                #     elif 'flv' in headers['Content-Type'] or '.flv' in episode_link:
-                                #         ext = '.flv'
-                                #     elif 'avi' in headers['Content-Type'] or '.avi' in episode_link:
-                                #         ext = '.avi'
-                                #     else:
-                                #         raise Exception("Unknown File Type: " + headers['Content-Type'])
-                                #     # move file with extension
-                                #     shutil.move(filename, os.path.join(path, episode_title + ext))
-                                #     download_fail = False
-                                # except Exception as e:
-                                #     print(e)
-                                #     download_fail = True
-                                #     break
                         # download fail not triggered, break out of links loop
                         if not download_fail:
                             print("Download success!")
                             break
-                        # download failed, delete the folder and check next set of links
+                        # download failed, check next set of links
                         else:
                             print("Download failed!")
+                    #if all links failed, then delete the folder
                     if download_fail:
                         if os.path.exists(path):
                             shutil.rmtree(path)
