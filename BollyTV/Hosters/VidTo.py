@@ -1,6 +1,6 @@
 __author__ = 'Nikhil'
 
-from BollyTV import Common
+import BollyTV.Common
 import re
 
 import time
@@ -9,8 +9,8 @@ import time
 def get_download_link(url):
     link = url.replace('embed-', '')
     link = re.sub(r'\-.*\.html', r'', link)
-    site = Common.read_url(link)
-    site = Common.replace_special_characters(site)
+    site = BollyTV.Common.read_url(link)
+    site = BollyTV.Common.replace_special_characters(site)
     sPattern = '<input type="hidden" name="(.+?)" value="(.*?)">'
     matches = re.compile(sPattern).findall(site)
     if matches:
@@ -19,7 +19,7 @@ def get_download_link(url):
                 match[2] = link
                 break
         time.sleep(7)
-        site = Common.read_url(url=link, data=matches)
+        site = BollyTV.Common.read_url(url=link, data=matches)
         match = re.compile("file_link = '(.+?)'").search(site)
         if match:
             return match.group(1)

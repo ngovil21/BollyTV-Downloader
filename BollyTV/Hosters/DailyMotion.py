@@ -1,15 +1,15 @@
 __author__ = 'Nikhil'
 
-from BollyTV import Common
+import BollyTV
 import re
 import urllib.request
 
 
 def get_download_link(url):
-    site = Common.read_url(url)
+    site = BollyTV.Common.read_url(url)
     if not site:
         return None
-    site = Common.replace_special_characters(site)
+    site = BollyTV.Common.replace_special_characters(site)
     patterns = ['"stream_h264_hd1080_url":"(.+?)"', '"stream_h264_hd_url":"(.+?)"', '"stream_h264_hq_url":"(.+?)"',
                 '"stream_h264_url":"(.+?)"', '"stream_h264_ld_url":"(.+?)"']
     for pat in patterns:

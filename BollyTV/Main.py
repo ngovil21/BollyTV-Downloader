@@ -8,7 +8,7 @@ import sys
 import ssl
 
 ssl._create_default_https_context = ssl._create_unverified_context  # fix for https certificate_verify_failed
-from Scrapers import BollyStop, DesiTVBox
+from BollyTV.Scrapers import BollyStop, DesiTVBox
 
 BASE_PATH = '~/Downloads/BollyTV'
 MAX_EPISODES = 0

@@ -1,12 +1,12 @@
 __author__ = 'Nikhil'
 
-from BollyTV import Common
+import BollyTV
 from BollyTV.Util.Packer import Packer
 import re
 
 
 def get_download_link(url):
-    site = Common.read_url(url)
+    site = BollyTV.Common.read_url(url)
     match = re.compile('(eval\(function.*?)\s*</script>').search(site)
     if match:
         javascript = match.group(1)
