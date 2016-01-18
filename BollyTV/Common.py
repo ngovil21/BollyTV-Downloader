@@ -7,7 +7,7 @@ import sys
 
 from lxml import html
 
-from Hosters import Cloudy, DailyMotion, PlayWire, VidTo, VodLocker, iDoWatch, Playu, WatchVideo
+from BollyTV.Hosters import Cloudy, DailyMotion, PlayWire, VidTo, VodLocker, iDoWatch, Playu, WatchVideo
 
 MINIMUM_FILE_SIZE = 5000000
 

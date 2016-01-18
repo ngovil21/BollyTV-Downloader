@@ -1,7 +1,7 @@
 __author__ = 'Nikhil'
 
-import BollyTV
-from BollyTV.Util.Packer import Packer
+import BollyTV.Common
+from BollyTV.Util import Packer
 import re
 
 

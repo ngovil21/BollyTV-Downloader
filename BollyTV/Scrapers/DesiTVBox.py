@@ -10,7 +10,7 @@ import urllib.request
 import urllib.parse
 import time
 
-from BollyTV import Common
+import BollyTV.Common
 import lxml.html as html
 
 HOST_NAME = "DesiTVBox"
@@ -137,7 +137,7 @@ def Download(channel, shows, hd=False):
                                 href = URL_HOME + href
                             # get direct url from video host
                             # episode_link, host = GetURLSource(href, episode_links[0], date)
-                            episode_link, host = Common.get_url_source(href, episode_links[0], date)
+                            episode_link, host = BollyTV.Common.get_url_source(href, episode_links[0], date)
                             if not episode_link:
                                 download_fail = True
                                 break
@@ -148,7 +148,7 @@ def Download(channel, shows, hd=False):
                             else:
                                 episode_title = title
 
-                            if not Common.download_episode_part(episode_link, episode_title, path):
+                            if not BollyTV.Common.download_episode_part(episode_link, episode_title, path):
                                 download_fail = True
                                 break
                             else:
@@ -175,7 +175,7 @@ def setParameters(base_path, maximum_episodes, remove_spaces):
 
 def GetURLSource(url, referer=None, date=''):
     try:
-        element = Common.element_from_url(url, referer=referer)
+        element = BollyTV.Common.element_from_url(url, referer=referer)
         # element = html.parse(url)
         while True:
             attr = element.xpath("//meta[translate(@http-equiv, 'REFSH', 'refsh') = 'refresh']/@content")
@@ -187,7 +187,7 @@ def GetURLSource(url, referer=None, date=''):
                 url = text[4:]
                 if not url.startswith('http'):
                     url = urllib.parse.urljoin(ref, url)
-            element = Common.element_from_url(url, referer)
+            element = BollyTV.Common.element_from_url(url, referer)
         string = html.tostring(element, encoding='utf-8').decode('utf-8')
         # print(string)
     except Exception as e:
@@ -197,11 +197,11 @@ def GetURLSource(url, referer=None, date=''):
     host = ''
     if element.xpath("//iframe[contains(@src,'dailymotion')]"):
         link = element.xpath("//iframe[contains(@src,'dailymotion')]/@src")[0]
-        link = Common.replace_special_characters(link)
-        site = Common.read_url(link)
+        link = BollyTV.Common.replace_special_characters(link)
+        site = BollyTV.Common.read_url(link)
         if not site:
             return None, None
-        site = Common.replace_special_characters(site)
+        site = BollyTV.Common.replace_special_characters(site)
         patterns = ['"stream_h264_hd1080_url":"(.+?)"', '"stream_h264_hd_url":"(.+?)"', '"stream_h264_hq_url":"(.+?)"',
                     '"stream_h264_url":"(.+?)"', '"stream_h264_ld_url":"(.+?)"']
         for pat in patterns:
@@ -234,7 +234,7 @@ def GetURLSource(url, referer=None, date=''):
                 config_url = element.xpath("//script/@data-config")[0].lstrip("//")
                 if not config_url.startswith("http://"):
                     config_url = "http://" + config_url
-                site = Common.read_url(config_url)
+                site = BollyTV.Common.read_url(config_url)
                 if not site:
                     return None, None
                 json_obj = json.loads(site)
@@ -243,7 +243,7 @@ def GetURLSource(url, referer=None, date=''):
                 # Log(json.dumps(json_obj,indent=4))
                 manifest = json_obj['content']['media']['f4m']
                 # Log("Manifest: " + str(manifest))
-                content = Common.read_url(manifest, headers={'Accept': 'text/html'}).replace('\n', '').replace('  ', '')
+                content = BollyTV.Common.read_url(manifest, headers={'Accept': 'text/html'}).replace('\n', '').replace('  ', '')
                 # Log("Content: " + str(content))
                 baseurl = re.search(r'>http(.*?)<', content)  # <([baseURL]+)\b[^>]*>(.*?)<\/baseURL>
                 # Log ('BaseURL: ' + baseurl.group())
@@ -260,7 +260,7 @@ def GetURLSource(url, referer=None, date=''):
                 return None, None
     elif element.xpath("//iframe[contains(@src,'vodlocker')]"):
         url = element.xpath("//iframe[contains(@src,'vodlocker')]/@src")[0]
-        source = Common.read_url(url)
+        source = BollyTV.Common.read_url(url)
         source = source.replace('|', '/')
         file = re.compile('file: "([^"]+)"').findall(source)
         host = 'vodlocker'
@@ -271,7 +271,7 @@ def GetURLSource(url, referer=None, date=''):
             return None, None
     elif element.xpath("//iframe[contains(@src,'cloudy')]"):
         link = element.xpath("//iframe[contains(@src,'cloudy')]/@src")[0]
-        site = Common.read_url(link)
+        site = BollyTV.Common.read_url(link)
         file = re.compile('file:[ ]?"([^"]+)"').findall(site)
         host = 'cloudy'
         if file:
@@ -281,7 +281,7 @@ def GetURLSource(url, referer=None, date=''):
             # Log(key)
             api_call = 'http://www.cloudy.ec/api/player.api.php?user=undefined&codes=1&file=%s&pass=undefined&key=%s' % (
                 file_id, key)
-            site = Common.read_url(api_call)
+            site = BollyTV.Common.read_url(api_call)
             content = re.compile('url=([^&]+)&').findall(site)
             if content:
                 url = urllib.request.unquote(content[0])
@@ -291,8 +291,8 @@ def GetURLSource(url, referer=None, date=''):
         link = element.xpath("//iframe[contains(@src,'vidto')]/@src")[0]
         link = link.replace('embed-', '')
         link = re.sub(r'\-.*\.html', r'', link)
-        site = Common.read_url(link)
-        site = Common.replace_special_characters(site)
+        site = BollyTV.Common.read_url(link)
+        site = BollyTV.Common.replace_special_characters(site)
         sPattern = '<input type="hidden" name="(.+?)" value="(.*?)">'
         matches = re.compile(sPattern).findall(site)
         host = "vidto"
@@ -302,7 +302,7 @@ def GetURLSource(url, referer=None, date=''):
                     match[2] = link
                     break
             time.sleep(7)
-            site = Common.read_url(url=link, data=matches)
+            site = BollyTV.Common.read_url(url=link, data=matches)
             match = re.compile("file_link = '(.+?)'").search(site)
             if match:
                 url = match.group(1)

@@ -2,7 +2,7 @@ __author__ = 'Nikhil'
 
 import re
 
-import BollyTV
+import BollyTV.Common
 
 
 def get_download_link(url):
