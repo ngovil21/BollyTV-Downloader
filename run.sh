@@ -1,3 +1,9 @@
 #!/usr/bin/env bash
-cd "${0%/*}"
+
+runpath="${0%/*}"
+if [ -d "${runpath}" ]
+then
+    cd "${runpath}"
+fi
+
 python3 ./BollyTV/Main.py
