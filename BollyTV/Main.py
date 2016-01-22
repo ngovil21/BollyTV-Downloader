@@ -9,6 +9,13 @@ import ssl
 
 ssl._create_default_https_context = ssl._create_unverified_context  # fix for https certificate_verify_failed
 
+# Store current working directory
+pwd = os.path.dirname(os.path.realpath(sys.argv[0]))
+# Append current directory to the python path
+sys.path.append(pwd)
+
+
+
 from BollyTV.Scrapers import BollyStop, DesiTVBox
 
 BASE_PATH = '~/Downloads/BollyTV'
