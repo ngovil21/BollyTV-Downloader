@@ -11,8 +11,9 @@ ssl._create_default_https_context = ssl._create_unverified_context  # fix for ht
 
 # Store current working directory
 pwd = os.path.dirname(os.path.realpath(sys.argv[0]))
-# Append current directory to the python path
-sys.path.append(pwd)
+parent = os.path.dirname(pwd)
+# Append parent directory to the python path
+sys.path.append(parent)
 
 
 
