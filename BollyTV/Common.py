@@ -4,6 +4,7 @@ from urllib import request, parse
 import shutil
 import os
 import sys
+import string
 
 from lxml import html
 
@@ -26,6 +27,8 @@ def download_episode_part(episode_link, title, path, part=0, remove_spaces=False
             episode_title = title + " Part " + "%02d" % part
         else:
             episode_title = title
+        if sys.platform.startswith("win"):
+            episode_title = windows_only_characters(episode_title)
         if remove_spaces:
             episode_title = episode_title.replace(" ", ".")
             while episode_title.find("..") != -1:
@@ -59,6 +62,11 @@ def replace_special_characters(sString):
 def remove_non_ascii(S):
     stripped = (c for c in S if 0 < ord(c) < 127)
     return ''.join(stripped)
+
+
+def windows_only_characters(S):
+    valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+    return ''.join(c for c in S if c in valid_chars)
 
 
 def read_url(url, referer=None, headers=None, data=None, raw=False):
