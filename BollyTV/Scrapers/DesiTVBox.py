@@ -1,4 +1,5 @@
 from fuzzywuzzy import fuzz
+import sys
 
 __author__ = 'Nikhil'
 
@@ -106,22 +107,14 @@ def Download(channel, shows, hd=False):
                     season_path = os.path.join(BASE_PATH, show, "Season " + season)
                     if not os.path.isdir(season_path):
                         os.makedirs(season_path)
+                    if sys.platform.startswith("win"):
+                        title = BollyTV.Common.windows_only_characters(title)
                     print(title)
                     path = os.path.join(season_path, title)
                     if os.path.exists(path):
                         if len(os.listdir(path)) > 0:
                             print("Non-empty folder exists. Assume already downloaded")
                             continue
-                    # Search all previous folder for date in name, means already downloaded
-                    # date_exists = False
-                    # for folder in os.listdir(season_path):
-                    #     print(folder)
-                    #     if date in folder and len(os.listdir(os.path.join(season_path, folder))) > 0:
-                    #         print(folder + " already exists.")
-                    #         date_exists = True
-                    #         break
-                    # if date_exists:
-                    #     continue
                     else:
                         os.makedirs(path)
                     # download episode, get video hosts

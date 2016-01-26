@@ -9,6 +9,8 @@ import urllib.parse
 from fuzzywuzzy import fuzz
 
 import lxml.html as html
+import sys
+from BollyTV import Common
 
 HOST_NAME = "BollyStop"
 URL_HOME = "http://www.bollystop.com/"
@@ -112,6 +114,8 @@ def Download(channel, shows, hd=False):
                             if not link:
                                 download_fail = True
                                 break
+                            if sys.platform.startswith("win"):
+                                title = Common.windows_only_characters(title)
                             print(title)
                             print(host + ": " + link)
                             try:
