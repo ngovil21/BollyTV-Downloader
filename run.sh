@@ -6,4 +6,4 @@ then
     cd "${runpath}"
 fi
 
-python3 ./BollyTV/Main.py
+python3 ./BollyTV/Main.py "${1}"
