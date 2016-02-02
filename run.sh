@@ -6,4 +6,10 @@ then
     cd "${runpath}"
 fi
 
-python3 ./BollyTV/Main.py "${1}"
+if [ -z "${1}" ]
+then
+    python3 ./BollyTV/Main.py "${1}"
+else
+    python3 ./BollyTV/Main.py
+fi
+
