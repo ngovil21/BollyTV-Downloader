@@ -23,12 +23,13 @@ REMOVE_SPACES = True
 FUZZY_MATCH = 85
 
 
-def Download(channel, shows, hd=False):
+def Download(channel, shows, hd=False, debug=False):
     # get channel
     if isinstance(shows, str):
         shows = [shows, ]
     source = html.parse(URL_HOME)
-    tree = source.xpath("//div[@id='left-inside']/div/table/tbody/tr/td/strong")
+    # parse Channel headings
+    tree = source.xpath(".//section/div[@class='container']//div[@class='shortcode-content']//strong")
     for a in tree:
         partial = fuzz.partial_ratio(a.text.lower(), channel.lower())
         if partial < FUZZY_MATCH:

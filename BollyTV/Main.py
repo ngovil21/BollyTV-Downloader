@@ -54,13 +54,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--dump", "-dump", help="Dump the settings to a configuration file and exit", nargs='?',
                         const=os.path.join(sys.path[0], "Settings.cfg"), default=None)
-    parser.add_argument("--config", "-config", "--load", "-load",
+    parser.add_argument("--config", "-config", "--load", "-l",
                         help="Load settings from a configuration file and run with settings")
-    parser.add_argument("--update_config", "-update_config", action="store_true",
+    parser.add_argument("--update_config", "-update_config", "-u", action="store_true",
                         help="Update the config file with new settings from the script and exit")
 
-    parser.add_argument("--add", "-add", "--addshow", "-addshow", action="store_true", help="Add a new show")
-    parser.add_argument("--remove", "-remove", "--removeshow", "-removeshow", action="store_true", help="Remove an existing show")
+    parser.add_argument("--add", "-add", "--addshow", "-addshow", "-a", action="store_true", help="Add a new show")
+    parser.add_argument("--remove", "-remove", "--removeshow", "-removeshow", "-r", action="store_true", help="Remove an existing show")
+    parser.add_argument("--verbose", "-verbose", "-v", action="store_true", help="Verbose logging")
 
     args = parser.parse_args()
 
@@ -74,6 +75,8 @@ if __name__ == '__main__':
             Config = ".BollyTV"
         elif os.path.isfile(os.path.join(sys.path[0], "Settings.cfg")):
             Config = os.path.join(sys.path[0], "Settings.cfg")
+
+    verbose = args.verbose
 
     if args.dump:
         # Output settings to a json config file and exit
