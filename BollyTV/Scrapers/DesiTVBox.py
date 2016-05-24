@@ -65,9 +65,10 @@ def Download(channel, shows, hd=False, verbose=False):
                 episode_link = tree.xpath("./@href")[0]
                 episodes_source = html.parse(episode_link)
                 # get episode list for show
-                episodes_tree = episodes_source.xpath(
-                    "//div[@id='left-inside']/div/h2[@class='titles']/a[contains(text(),'Watch')]")
+                episodes_tree = episodes_source.xpath(".//section//h4/a[contains(text(),'Watch')]")
                 if not episodes_tree:
+                    if verbose:
+                        print("No episodes found! May need to check xpath!")
                     continue
                 # get a maximum number of episodes
                 mx = len(episodes_tree)
@@ -80,18 +81,18 @@ def Download(channel, shows, hd=False, verbose=False):
                     if not episode_links:
                         continue
                     episode_source = html.parse(episode_links[0])
-                    post_date = episode_source.xpath(".//*[@id='left-inside']/div/div[@class='post-info']/text()")
+                    post_date = episode_source.xpath(".//section//span[contains(@class,'date')]/a/text()")
                     episode_tree_hd = episode_source.xpath(
-                        ".//*[@id='left-inside']/div/center/p//span[contains(text(),'HD')]")
+                        ".//section//div[@class='entry_content']//span[contains(text(),'HD')]")
                     episode_tree_sd = episode_source.xpath(
-                        ".//*[@id='left-inside']/div/center/p//span[not(contains(text(),'HD'))]")
+                        ".//section//div[@class='entry_content']//span[not(contains(text(),'HD'))]")
                     episode_tree = []
                     date = ""
                     # title = ""
                     if link_text:
                         date = getDate(link_text)
                     if not date and post_date:
-                        date = getDate(post_date[0])
+                        date = getDate(post_date)
                     ep_title = ""
                     if link_text:
                         ep_title = link_text.replace("Watch Online", "").replace(show, "").replace("  ", " ").strip()
@@ -326,12 +327,23 @@ def getDate(text):
                 break
         year = match.group(4)
         text = "%02d-%02d-%s" % (month, int(day), year)
+    else:
+        match = re.compile("([\w]+) ([\d]+), ([\d]+)").search(text)
+        if match:
+            month = match.group(1)
+            for i in range(0, len(months)):
+                if month in months[i]:
+                    month = i + 1
+                    break
+            day = match.group(2)
+            year = match.group(3)
+            text = text = "%02d-%02d-%s" % (month, int(day), year)
     return text
 
 
 def getChannels():
     source = html.parse(URL_HOME)
-    tree = source.xpath("//div[@id='left-inside']/div/table/tbody/tr/td/strong")
+    tree = source.xpath(".//section/div[@class='container']//div[@class='shortcode-content']//strong")
     channels = []
     channel_links = []
     for b in tree:
@@ -343,7 +355,7 @@ def getChannels():
 def getShows(channel):
     shows = []
     source = html.parse(URL_HOME)
-    tree = source.xpath("//div[@id='left-inside']/div/table/tbody/tr/td/strong")
+    tree = source.xpath(".//section/div[@class='container']//div[@class='shortcode-content']//strong")
     for c in tree:
         if c.text == channel:
             channel_shows = c.xpath("./following-sibling::ul/li/a")
