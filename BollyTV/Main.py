@@ -206,7 +206,7 @@ if __name__ == '__main__':
         for scraper in Scrapers:
             if host == scraper.HOST_NAME:
                 scraper.setParameters(BASE_PATH, MAX_EPISODES, REMOVE_SPACES)
-                print("Downloading from " + BollyStop.HOST_NAME)
+                print("Downloading from " + scraper.HOST_NAME)
                 for channel in channel_dict:
                     scraper.Download(channel, channel_dict[channel])
                     # if host == BollyStop.HOST_NAME:
