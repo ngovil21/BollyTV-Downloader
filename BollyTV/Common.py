@@ -191,8 +191,8 @@ def get_url_source(url, referer=None, date=None):
             return url, host
         else:
             return None, None
-    elif element.xpath("//iframe[contains(@src,'playu.net')]"):
-        link = element.xpath("//iframe[contains(@src,'playu.net')]/@src")[0]
+    elif element.xpath("//iframe[contains(@src,'playu.me')]"):
+        link = element.xpath("//iframe[contains(@src,'playu.me')]/@src")[0]
         url = Playu.get_download_link(link)
         host = 'playu'
         if url:
