@@ -10,7 +10,7 @@ from lxml import html
 
 from BollyTV.Hosters import Cloudy, DailyMotion, PlayWire, VidTo, VodLocker, iDoWatch, Playu, WatchVideo
 
-MINIMUM_FILE_SIZE = 5000000
+MINIMUM_FILE_SIZE = 15000000
 
 
 def print_progress(count, blockSize, totalSize):
