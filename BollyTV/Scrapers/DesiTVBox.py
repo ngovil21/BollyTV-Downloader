@@ -127,7 +127,8 @@ def Download(channel, shows, hd=False, verbose=False):
                     # download episode, get video hosts
                     download_fail = False
                     for item in episode_tree:
-                        print(item.xpath('./text()')[0])
+                        if item.xpath('./text()'):
+                            print(item.xpath('./text()')[0])
                         links = item.xpath("../../following-sibling::p[1]/a")
                         download_fail = True
                         # download links
