@@ -78,7 +78,10 @@ def Download(channel, shows, hd=False):
                         "//div[@id='serial_episodes']/h3[not(contains(text(),'HD'))]")
                     episode_tree = []
                     for e in episode_tree_hd:
-                        episode_tree.append(e)
+                        if e and "Single Link" in e.text:
+                            episode_tree.insert(0)
+                        else:
+                            episode_tree.append(e)
                     if not hd:
                         for e in episode_tree_sd:
                             episode_tree.append(e)

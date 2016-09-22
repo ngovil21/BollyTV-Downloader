@@ -309,6 +309,10 @@ def GetURLSource(url, referer=None, date=''):
                 url = match.group(1)
                 return url, host
         return None, None
+    elif element.xpath("//iframe[contains(@src,'watchvideo')]"):
+        link = element.xpath("//iframe[contains(@src,'watchvideo')]/@src")[0]
+        site = BollyTV.Common.read_url(link)
+        return None,None
 
     else:
         return None, None

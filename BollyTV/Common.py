@@ -8,7 +8,7 @@ import string
 
 from lxml import html
 
-from BollyTV.Hosters import Cloudy, DailyMotion, PlayWire, VidTo, VodLocker, iDoWatch, Playu, WatchVideo
+from BollyTV.Hosters import Cloudy, DailyMotion, PlayWire, VidTo, VodLocker, iDoWatch, Playu, WatchVideo, VidShare
 
 MINIMUM_FILE_SIZE = 15000000
 
@@ -192,17 +192,25 @@ def get_url_source(url, referer=None, date=None):
         else:
             return None, None
     elif element.xpath("//iframe[contains(@src,'playu.me')]"):
-        link = element.xpath("//iframe[contains(@src,'playu.me')]/@src")[0]
-        url = Playu.get_download_link(link)
-        host = 'playu'
-        if url:
-            return url, host
-        else:
-            return None, None
+       link = element.xpath("//iframe[contains(@src,'playu.me')]/@src")[0]
+       url = Playu.get_download_link(link)
+       host = 'playu'
+       if url:
+           return url, host
+       else:
+           return None, None
     elif element.xpath("//iframe[contains(@src,'watchvideo2')]"):
         link = element.xpath("//iframe[contains(@src,'watchvideo2')]/@src")[0]
         url = WatchVideo.get_download_link(link)
         host = 'watchvideo'
+        if url:
+            return url, host
+        else:
+            return None, None
+    elif element.xpath("//iframe[contains(@src,'vidshare')]"):
+        link = element.xpath("//iframe[contains(@src,'vidshare')]/@src")[0]
+        url = VidShare.get_download_link(link)
+        host = 'vidshare'
         if url:
             return url, host
         else:
