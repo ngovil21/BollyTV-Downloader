@@ -7,7 +7,7 @@ import re
 
 def get_download_link(url):
 
-    return None
+
     site = BollyTV.Common.read_url(url)
     match = re.compile('(eval\(function.*?)\s*</script>').search(site)
     if match:

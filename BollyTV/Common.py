@@ -224,5 +224,13 @@ def get_url_source(url, referer=None, date=None):
             return url, host
         else:
             return None, None
+    elif element.xpath("//iframe[contains(@src,'speedwatch')]"):
+        link = element.xpath("//iframe[contains(@src,'speedwatch')]/@src")[0]
+        url = VidWatch.get_download_link(link)
+        host = 'speedwatch'
+        if url:
+            return url, host
+        else:
+            return None, None
 
     return None, None
