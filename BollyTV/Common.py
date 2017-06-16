@@ -8,7 +8,8 @@ import string
 
 from lxml import html
 
-from BollyTV.Hosters import Cloudy, DailyMotion, PlayWire, VidTo, VodLocker, iDoWatch, Playu, WatchVideo, VidShare
+from BollyTV.Hosters import Cloudy, DailyMotion, PlayWire, VidTo, VodLocker, iDoWatch, Playu, WatchVideo, VidShare, \
+    VidWatch
 
 MINIMUM_FILE_SIZE = 15000000
 
@@ -199,8 +200,8 @@ def get_url_source(url, referer=None, date=None):
            return url, host
        else:
            return None, None
-    elif element.xpath("//iframe[contains(@src,'watchvideo2')]"):
-        link = element.xpath("//iframe[contains(@src,'watchvideo2')]/@src")[0]
+    elif element.xpath("//iframe[contains(@src,'watchvideo')]"):
+        link = element.xpath("//iframe[contains(@src,'watchvideo')]/@src")[0]
         url = WatchVideo.get_download_link(link)
         host = 'watchvideo'
         if url:
@@ -211,6 +212,14 @@ def get_url_source(url, referer=None, date=None):
         link = element.xpath("//iframe[contains(@src,'vidshare')]/@src")[0]
         url = VidShare.get_download_link(link)
         host = 'vidshare'
+        if url:
+            return url, host
+        else:
+            return None, None
+    elif element.xpath("//iframe[contains(@src,'vidwatch')]"):
+        link = element.xpath("//iframe[contains(@src,'vidwatch')]/@src")[0]
+        url = VidWatch.get_download_link(link)
+        host = 'vidwatch'
         if url:
             return url, host
         else:

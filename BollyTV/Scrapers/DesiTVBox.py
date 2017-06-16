@@ -83,7 +83,7 @@ def Download(channel, shows, hd=False, verbose=False):
                     episode_source = html.parse(episode_links[0])
                     post_date = episode_source.xpath(".//section//span[contains(@class,'date')]/a/text()")
                     episode_tree_hd = episode_source.xpath(
-                        ".//section//div[@class='entry_content']//span[contains(text(),'HD')]")
+                        ".//section//div[@class='entry_content']//b[contains(text() | span/text(),'HD')]")
                     episode_tree_sd = episode_source.xpath(
                         ".//section//div[@class='entry_content']//span[not(contains(text(),'HD'))]")
                     episode_tree = []
@@ -100,7 +100,7 @@ def Download(channel, shows, hd=False, verbose=False):
                     title = show + " - " + date + " - " + ep_title
                     index = 0
                     for e in episode_tree_hd:
-                        if 'Single Link' in e.text:  # Prioritize Single Links
+                        if e.text and 'Single Link' in e.text:  # Prioritize Single Links
                             episode_tree.insert(index, e)
                             index += 1
                         else:
@@ -129,7 +129,7 @@ def Download(channel, shows, hd=False, verbose=False):
                     for item in episode_tree:
                         if item.xpath('./text()'):
                             print(item.xpath('./text()')[0])
-                        links = item.xpath("../../following-sibling::p[1]/a")
+                        links = item.xpath("../following-sibling::p[1]/a")
                         download_fail = True
                         # download links
                         for i in range(0, len(links)):
