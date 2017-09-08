@@ -15,7 +15,7 @@ import BollyTV.Common
 import lxml.html as html
 
 HOST_NAME = "DesiTVBox"
-URL_HOME = "http://www.desitvbox.me/"
+URL_HOME = "http://www.desitvbox.info/"
 
 BASE_PATH = '~/Downloads/BollyTV'
 MAX_EPISODES = 0

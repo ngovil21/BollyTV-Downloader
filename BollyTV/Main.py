@@ -211,14 +211,4 @@ if __name__ == '__main__':
                 scraper.setParameters(BASE_PATH, MAX_EPISODES, REMOVE_SPACES)
                 print("Downloading from " + scraper.HOST_NAME)
                 for channel in channel_dict:
-                    scraper.Download(channel, channel_dict[channel])
-                    # if host == BollyStop.HOST_NAME:
-                    #     BollyStop.setParameters(BASE_PATH, MAX_EPISODES, REMOVE_SPACES)
-                    #     print("Downloading from " + BollyStop.HOST_NAME)
-                    #     for channel in channel_dict:
-                    #         BollyStop.Download(channel, channel_dict[channel])
-                    # elif host == DesiTVBox.HOST_NAME:
-                    #     DesiTVBox.setParameters(BASE_PATH, MAX_EPISODES, REMOVE_SPACES)
-                    #     print("Downloading from " + DesiTVBox.HOST_NAME)
-                    #     for channel in channel_dict:
-                    #         DesiTVBox.Download(channel, channel_dict[channel])
+                    scraper.Download(channel, channel_dict[channel])////
