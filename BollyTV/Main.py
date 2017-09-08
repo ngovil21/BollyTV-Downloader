@@ -211,4 +211,6 @@ if __name__ == '__main__':
                 scraper.setParameters(BASE_PATH, MAX_EPISODES, REMOVE_SPACES)
                 print("Downloading from " + scraper.HOST_NAME)
                 for channel in channel_dict:
-                    scraper.Download(channel, channel_dict[channel])////
+                    scraper.Download(channel, channel_dict[channel])
+
+
